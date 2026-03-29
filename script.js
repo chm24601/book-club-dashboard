@@ -13,8 +13,8 @@ async function loadBooks() {
     div.innerHTML = `
       <h2>${book.Title || 'No Title'}</h2>
       <p><strong>Author:</strong> ${book.Author || 'Unknown'}</p>
-      <p><strong>Year:</strong> ${book.PublishedYear || 'N/A'}</p>
-      <p><strong>Rating:</strong> ${book.GoodreadsRating || 'N/A'}</p>
+      <p><strong>Published Year:</strong> ${book.PublishedYear || 'N/A'}</p>
+      <p><strong>GoodReads Rating:</strong> ${book.GoodreadsRating || 'N/A'}</p>
       <p>${book.Notes || ''}</p>
     `;
 
