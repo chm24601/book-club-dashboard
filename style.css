@@ -1,28 +1,69 @@
 body {
-  font-family: Georgia, serif;
-  background-color: #f8f6f2;
+  font-family: "Georgia", serif;
+  background-color: #f7f3eb;
   margin: 0;
-  padding: 20px;
+  padding: 40px;
+  color: #2f2a26;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
+  font-size: 2.8rem;
+  letter-spacing: 1px;
+  color: #3b2f2f;
 }
 
 #books-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 30px;
 }
 
 .book-card {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  background: #fffdf8;
+  padding: 22px;
+  border-radius: 14px;
+
+  border: 1px solid #e6dccf;
+
+  box-shadow: 0 8px 24px rgba(60, 40, 30, 0.08);
+
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(60, 40, 30, 0.15);
+}
+
+/* subtle vintage accent line */
+.book-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: #7a2e2e; /* deep wine */
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
 }
 
 .book-card h2 {
-  margin-top: 0;
+  margin-top: 10px;
+  font-size: 1.5rem;
+  color: #3a2d2d;
+}
+
+.book-card p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* make labels feel refined */
+.book-card strong {
+  color: #6a4f4f;
 }
