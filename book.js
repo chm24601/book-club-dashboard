@@ -31,7 +31,7 @@ async function loadBook() {
 
     renderBook(book);
 
-    // TRY TO LOAD ENTRIES (DOESN'T BREAK IF FAILS)
+    // LOAD ENTRIES (SAFE)
     try {
       const entriesRes = await fetch('/api/entries');
 
@@ -55,7 +55,7 @@ async function loadBook() {
   }
 }
 
-// RENDER BOOK DETAILS
+// ⭐ UPDATED RENDER (GOODREADS LABEL FIXED)
 function renderBook(book) {
   const container = document.getElementById('book-container');
 
@@ -66,13 +66,16 @@ function renderBook(book) {
       <div class="book-info">
         <h2>${book.Title}</h2>
         <p>${book.Author}</p>
-        <p>⭐ ${book.GoodreadsRating || 'N/A'}</p>
+
+        <p class="goodreads-rating">
+          <strong>Goodreads Rating:</strong> ⭐ ${book.GoodreadsRating || 'N/A'}
+        </p>
       </div>
     </div>
   `;
 }
 
-// RENDER ENTRIES (FIXED MATCHING + STARS)
+// RENDER ENTRIES (WITH STARS ⭐)
 function renderEntries(entries, slug) {
   const container = document.getElementById('entries-container');
 
@@ -142,7 +145,7 @@ document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
     // CLEAR FORM
     document.getElementById('entry-form').reset();
 
-    // RELOAD BOOK + ENTRIES
+    // RELOAD PAGE DATA
     loadBook();
 
   } catch (error) {
