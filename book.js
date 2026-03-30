@@ -1,25 +1,25 @@
-// GET SLUG
+// GET SLUG FROM URL
 function getSlugFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('slug');
 }
 
-// NORMALIZE TEXT (KEY FIX 🔥)
+// NORMALIZE STRINGS (FOR MATCHING)
 function normalize(str) {
-  return str.toLowerCase().trim();
+  return str?.toLowerCase().trim();
 }
 
-// LOAD BOOK
+// LOAD BOOK + ENTRIES
 async function loadBook() {
   const slug = getSlugFromURL();
 
   try {
-    const res = await fetch('/api/books');
-    const data = await res.json();
+    const booksRes = await fetch('/api/books');
+    const booksData = await booksRes.json();
 
-    const books = data.records.map(r => r.fields);
+    const books = booksData.records.map(r => r.fields);
 
-    // 🔥 MATCH SAFELY
+    // FIND BOOK (SAFE MATCH)
     const book = books.find(b =>
       normalize(b.Title) === normalize(decodeURIComponent(slug))
     );
@@ -31,12 +31,30 @@ async function loadBook() {
 
     renderBook(book);
 
+    // TRY TO LOAD ENTRIES (DON'T BREAK IF IT FAILS)
+    try {
+      const entriesRes = await fetch('/api/entries');
+
+      if (!entriesRes.ok) throw new Error('Entries failed');
+
+      const entriesData = await entriesRes.json();
+
+      const entries = entriesData.records
+        ? entriesData.records.map(r => r.fields)
+        : [];
+
+      renderEntries(entries, slug);
+
+    } catch (err) {
+      console.warn("Entries failed to load");
+    }
+
   } catch (error) {
     console.error("Error loading book:", error);
   }
 }
 
-// RENDER
+// RENDER BOOK DETAILS
 function renderBook(book) {
   const container = document.getElementById('book-container');
 
@@ -53,18 +71,54 @@ function renderBook(book) {
   `;
 }
 
-// FORM SUBMIT (SAFE)
+// RENDER ENTRIES
+function renderEntries(entries, slug) {
+  const container = document.getElementById('entries-container');
+
+  const decodedSlug = decodeURIComponent(slug);
+
+  const filtered = entries.filter(e =>
+    normalize(e.BookSlug) === normalize(decodedSlug)
+  );
+
+  container.innerHTML = '';
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<p>No thoughts yet — be the first!</p>`;
+    return;
+  }
+
+  filtered.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+
+    div.innerHTML = `
+      <h4>${entry.MemberName}</h4>
+      <p>⭐ ${entry.Rating}</p>
+      <p>${entry.Note || ''}</p>
+      ${
+        entry.Link
+          ? `<p><a href="${entry.Link}" target="_blank">View link</a></p>`
+          : ''
+      }
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// SUBMIT FORM
 document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const slug = getSlugFromURL();
 
   const data = {
-    BookSlug: slug,
-    MemberName: document.getElementById('name').value,
-    Rating: document.getElementById('rating').value,
-    Note: document.getElementById('note').value,
-    Link: document.getElementById('link').value
+    bookSlug: slug,
+    memberName: document.getElementById('name').value,
+    rating: document.getElementById('rating').value,
+    note: document.getElementById('note').value,
+    link: document.getElementById('link').value
   };
 
   try {
@@ -74,14 +128,18 @@ document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
       body: JSON.stringify(data)
     });
 
+    const result = await res.json();
+
     if (!res.ok) {
-      const err = await res.json();
-      alert(err.error || 'Error submitting');
+      alert(result.error || 'Something went wrong');
       return;
     }
 
+    // CLEAR FORM
     document.getElementById('entry-form').reset();
-    alert("Submitted!");
+
+    // RELOAD PAGE DATA
+    loadBook();
 
   } catch (error) {
     console.error("Submit error:", error);
