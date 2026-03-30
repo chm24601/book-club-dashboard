@@ -15,10 +15,18 @@ async function loadBookDetails() {
     currentBookSlug = slug;
 
     const response = await fetch('/api/books');
-    const data = await response.json();
+    const rawText = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      container.innerHTML = `<p>/api/books returned invalid JSON.</p><pre>${rawText}</pre>`;
+      return;
+    }
 
     if (!response.ok) {
-      container.innerHTML = '<p>Could not load book details.</p>';
+      container.innerHTML = `<p>Could not load book details.</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
       return;
     }
 
@@ -56,7 +64,7 @@ async function loadBookDetails() {
     await loadEntries();
   } catch (error) {
     console.error('Error loading book details:', error);
-    container.innerHTML = '<p>There was a problem loading this book.</p>';
+    container.innerHTML = `<p>There was a problem loading this book.</p><pre>${error.message}</pre>`;
   }
 }
 
@@ -72,7 +80,15 @@ async function loadEntries() {
 
   try {
     const response = await fetch(`/api/entries?slug=${encodeURIComponent(currentBookSlug)}`);
-    const data = await response.json();
+    const rawText = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      entriesContainer.innerHTML = '<p>Entries API returned invalid data.</p>';
+      return;
+    }
 
     if (!response.ok) {
       entriesContainer.innerHTML = '<p>Could not load entries.</p>';
@@ -113,7 +129,7 @@ async function loadEntries() {
       .join('');
   } catch (error) {
     console.error('Error loading entries:', error);
-    entriesContainer.innerHTML = '<p>There was a problem loading entries.</p>';
+    entriesContainer.innerHTML = `<p>There was a problem loading entries.</p><pre>${error.message}</pre>`;
   }
 }
 
@@ -172,43 +188,6 @@ async function handleEntrySubmit(event) {
   } catch (error) {
     console.error('Error submitting entry:', error);
     formMessage.textContent = error.message || 'Something went wrong. Please try again.';
-    submitButton.disabled = false;
-    submitButton.textContent = 'Submit';
-  }
-}
-
-  try {
-    const response = await fetch('/api/submit-entry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bookSlug: currentBookSlug,
-        memberName,
-        rating,
-        note,
-        link,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('Submit failed:', data);
-      formMessage.textContent = data.error || data.message || 'Something went wrong. Please try again.';
-      submitButton.disabled = false;
-      submitButton.textContent = 'Submit';
-      return;
-    }
-
-    document.getElementById('entry-form').reset();
-    formMessage.textContent = 'Entry added!';
-    submitButton.disabled = false;
-    submitButton.textContent = 'Submit';
-
-    await loadEntries();
-  } catch (error) {
-    console.error('Error submitting entry:', error);
-    formMessage.textContent = 'Something went wrong. Please try again.';
     submitButton.disabled = false;
     submitButton.textContent = 'Submit';
   }
