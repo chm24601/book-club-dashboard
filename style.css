@@ -257,3 +257,71 @@ color: #3e2f2f;
   color: #aaa;
   font-weight: normal;
 }
+/* BACK LINK */
+.back-link {
+  margin-bottom: 20px;
+}
+
+.back-link a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+/* BOOK DETAIL */
+.book-detail {
+  display: flex;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+
+.book-detail img {
+  width: 200px;
+  border-radius: 12px;
+}
+
+.book-info h2 {
+  margin: 0;
+}
+
+/* ENTRIES */
+.entries-section {
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+
+.entry {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* FORM */
+.form-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#entry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#entry-form input,
+#entry-form textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+#entry-form button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: black;
+  color: white;
+  cursor: pointer;
+}
