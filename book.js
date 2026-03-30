@@ -145,11 +145,56 @@ async function handleEntrySubmit(event) {
       }),
     });
 
+    const rawText = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = { error: rawText || 'Unknown server response' };
+    }
+
+    if (!response.ok) {
+      console.error('Submit failed:', data);
+      formMessage.textContent =
+        data.error || data.details || 'Something went wrong. Please try again.';
+      submitButton.disabled = false;
+      submitButton.textContent = 'Submit';
+      return;
+    }
+
+    document.getElementById('entry-form').reset();
+    formMessage.textContent = 'Entry added!';
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit';
+
+    await loadEntries();
+  } catch (error) {
+    console.error('Error submitting entry:', error);
+    formMessage.textContent = error.message || 'Something went wrong. Please try again.';
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit';
+  }
+}
+
+  try {
+    const response = await fetch('/api/submit-entry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bookSlug: currentBookSlug,
+        memberName,
+        rating,
+        note,
+        link,
+      }),
+    });
+
     const data = await response.json();
 
     if (!response.ok) {
       console.error('Submit failed:', data);
-      formMessage.textContent = 'Something went wrong. Please try again.';
+      formMessage.textContent = data.error || data.message || 'Something went wrong. Please try again.';
       submitButton.disabled = false;
       submitButton.textContent = 'Submit';
       return;

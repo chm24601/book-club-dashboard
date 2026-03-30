@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { bookSlug, memberName, rating, note, link } = req.body;
+    const { bookSlug, memberName, rating, note, link } = req.body || {};
 
     if (!bookSlug || !memberName || !rating || !note) {
       return res.status(400).json({
@@ -45,7 +45,14 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await airtableResponse.json();
+    const rawText = await airtableResponse.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = { error: 'Non-JSON response from Airtable', rawText };
+    }
 
     if (!airtableResponse.ok) {
       console.error('Airtable submit error:', data);
