@@ -1,58 +1,114 @@
-async function loadBooks() {
+let allBooks = [];
+let allEntries = [];
+
+// LOAD DATA
+async function loadData() {
   try {
-    const response = await fetch('/api/books');
-    const data = await response.json();
+    const [booksRes, entriesRes] = await Promise.all([
+      fetch('/api/books'),
+      fetch('/api/entries')
+    ]);
 
-    const container = document.getElementById('books-container');
-    container.innerHTML = '';
+    const booksData = await booksRes.json();
+    const entriesData = await entriesRes.json();
 
-    if (!data.records || !Array.isArray(data.records)) {
-      container.innerHTML = '<p>No books found.</p>';
-      return;
-    }
+    allBooks = booksData.records.map(r => r.fields);
+    allEntries = entriesData.records.map(r => r.fields);
 
-    data.records.forEach((record) => {
-      const book = record.fields;
-      const coverUrl = getCoverUrl(book.BookCover);
-      const slug = book.Slug || '';
+    renderBooks(allBooks);
 
-      const card = document.createElement('a');
-      card.className = 'book-card';
-      card.href = `book.html?slug=${encodeURIComponent(slug)}`;
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
+}
 
-      card.innerHTML = `
-        <div class="card-content">
-          <img src="${coverUrl}" alt="${book.Title || 'Book cover'}" />
-          <div class="text">
-            <h2>${book.Title || 'Untitled'}</h2>
-            <p>${book.Author || ''}</p>
+// CALCULATE AVERAGE RATING
+function getAverageRating(slug) {
+  const entries = allEntries.filter(e => e.BookSlug === slug);
+
+  if (entries.length === 0) return null;
+
+  const total = entries.reduce((sum, e) => sum + Number(e.Rating || 0), 0);
+  return (total / entries.length).toFixed(1);
+}
+
+// SAFE SLUG HELPER 🔥
+function getSlug(book) {
+  return book.Slug || book.slug || book.BookSlug || encodeURIComponent(book.Title);
+}
+
+// RENDER BOOKS
+function renderBooks(books) {
+  const container = document.getElementById('books-container');
+  container.innerHTML = '';
+
+  books.forEach(book => {
+    const slug = getSlug(book);
+    const avgRating = getAverageRating(slug);
+
+    const div = document.createElement('div');
+    div.className = 'book-card';
+
+    div.innerHTML = `
+      <div class="card-content">
+        <img src="${book.BookCover}" alt="${book.Title}" />
+        
+        <div class="text">
+          <h3>${book.Title}</h3>
+          <p>${book.Author}</p>
+
+          <div class="rating">
+            ${
+              avgRating 
+              ? `⭐ ${avgRating}` 
+              : `<span class="no-rating">No ratings yet</span>`
+            }
           </div>
         </div>
-      `;
+      </div>
+    `;
 
-      container.appendChild(card);
+    // CLICK HANDLER (FIXED)
+    div.addEventListener('click', () => {
+      window.location.href = `book.html?slug=${slug}`;
     });
-  } catch (error) {
-    console.error('Error loading books:', error);
-    const container = document.getElementById('books-container');
-    container.innerHTML = '<p>There was a problem loading the books.</p>';
-  }
+
+    container.appendChild(div);
+  });
 }
 
-function getCoverUrl(bookCoverField) {
-  if (!bookCoverField) {
-    return 'https://via.placeholder.com/200x300?text=No+Cover';
+// SEARCH
+document.getElementById('search-input').addEventListener('input', (e) => {
+  const value = e.target.value.toLowerCase();
+
+  const filtered = allBooks.filter(book =>
+    book.Title.toLowerCase().includes(value) ||
+    book.Author.toLowerCase().includes(value)
+  );
+
+  renderBooks(filtered);
+});
+
+// SORT
+document.getElementById('sort-select').addEventListener('change', (e) => {
+  let sorted = [...allBooks];
+
+  if (e.target.value === 'title-asc') {
+    sorted.sort((a, b) => a.Title.localeCompare(b.Title));
   }
 
-  if (typeof bookCoverField === 'string') {
-    return bookCoverField;
+  if (e.target.value === 'title-desc') {
+    sorted.sort((a, b) => b.Title.localeCompare(a.Title));
   }
 
-  if (Array.isArray(bookCoverField) && bookCoverField.length > 0) {
-    return bookCoverField[0].url;
+  if (e.target.value === 'rating-desc') {
+    sorted.sort((a, b) => {
+      return (getAverageRating(getSlug(b)) || 0) - (getAverageRating(getSlug(a)) || 0);
+    });
   }
 
-  return 'https://via.placeholder.com/200x300?text=No+Cover';
-}
+  renderBooks(sorted);
+});
 
-loadBooks();
+// INIT
+loadData();
