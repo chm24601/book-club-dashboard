@@ -4,7 +4,7 @@ function getSlugFromURL() {
   return params.get('slug');
 }
 
-// NORMALIZE STRINGS (CRITICAL FOR MATCHING)
+// NORMALIZE STRINGS
 function normalize(str) {
   return str?.toLowerCase().trim();
 }
@@ -19,7 +19,7 @@ async function loadBook() {
 
     const books = booksData.records.map(r => r.fields);
 
-    // FIND BOOK (SAFE MATCH)
+    // FIND BOOK
     const book = books.find(b =>
       normalize(b.Title) === normalize(decodeURIComponent(slug))
     );
@@ -55,9 +55,11 @@ async function loadBook() {
   }
 }
 
-// ⭐ UPDATED RENDER (GOODREADS LABEL FIXED)
+// ⭐ FIXED RENDER FUNCTION (THIS IS THE IMPORTANT PART)
 function renderBook(book) {
   const container = document.getElementById('book-container');
+
+  console.log("BOOK DATA:", book); // helpful debug
 
   container.innerHTML = `
     <div class="book-detail">
@@ -67,15 +69,15 @@ function renderBook(book) {
         <h2>${book.Title}</h2>
         <p>${book.Author}</p>
 
-        <p class="goodreads-rating">
-          <strong>Goodreads Rating:</strong> ⭐ ${book.GoodreadsRating || 'N/A'}
+        <p>
+          <strong>Goodreads Rating:</strong> ⭐ ${book.GoodreadsRating ? book.GoodreadsRating : 'N/A'}
         </p>
       </div>
     </div>
   `;
 }
 
-// RENDER ENTRIES (WITH STARS ⭐)
+// RENDER ENTRIES
 function renderEntries(entries, slug) {
   const container = document.getElementById('entries-container');
 
@@ -114,7 +116,7 @@ function renderEntries(entries, slug) {
   });
 }
 
-// SUBMIT FORM (FIXED FIELD NAMES)
+// SUBMIT FORM
 document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -142,10 +144,8 @@ document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
       return;
     }
 
-    // CLEAR FORM
     document.getElementById('entry-form').reset();
 
-    // RELOAD PAGE DATA
     loadBook();
 
   } catch (error) {
