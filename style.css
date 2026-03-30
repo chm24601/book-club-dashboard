@@ -237,3 +237,23 @@ color: #3e2f2f;
   color: #4b3636;
   font-weight: 600;
 }
+/* SEARCH INPUT */
+#search-input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-right: 10px;
+  width: 200px;
+}
+
+/* RATING */
+.rating {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.no-rating {
+  color: #aaa;
+  font-weight: normal;
+}
