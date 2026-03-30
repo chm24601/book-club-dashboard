@@ -1,36 +1,27 @@
-// GET SLUG FROM URL
+// GET SLUG
 function getSlugFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('slug');
 }
 
-// LOAD BOOK DATA
+// NORMALIZE TEXT (KEY FIX 🔥)
+function normalize(str) {
+  return str.toLowerCase().trim();
+}
+
+// LOAD BOOK
 async function loadBook() {
   const slug = getSlugFromURL();
 
-  if (!slug) {
-    console.error("No slug found in URL");
-    return;
-  }
-
   try {
-    const [booksRes, entriesRes] = await Promise.all([
-      fetch('/api/books'),
-      fetch('/api/entries')
-    ]);
+    const res = await fetch('/api/books');
+    const data = await res.json();
 
-    const booksData = await booksRes.json();
-    const entriesData = await entriesRes.json();
+    const books = data.records.map(r => r.fields);
 
-    const books = booksData.records.map(r => r.fields);
-    const entries = entriesData.records.map(r => r.fields);
-
-    // 🔥 MATCH BOOK (handles multiple slug formats)
+    // 🔥 MATCH SAFELY
     const book = books.find(b =>
-      b.Slug === slug ||
-      b.slug === slug ||
-      b.BookSlug === slug ||
-      encodeURIComponent(b.Title) === slug
+      normalize(b.Title) === normalize(decodeURIComponent(slug))
     );
 
     if (!book) {
@@ -39,14 +30,13 @@ async function loadBook() {
     }
 
     renderBook(book);
-    renderEntries(entries, slug);
 
   } catch (error) {
     console.error("Error loading book:", error);
   }
 }
 
-// RENDER BOOK DETAILS
+// RENDER
 function renderBook(book) {
   const container = document.getElementById('book-container');
 
@@ -57,48 +47,14 @@ function renderBook(book) {
       <div class="book-info">
         <h2>${book.Title}</h2>
         <p>${book.Author}</p>
+        <p>⭐ ${book.GoodreadsRating || 'N/A'}</p>
       </div>
     </div>
   `;
 }
 
-// RENDER ENTRIES
-function renderEntries(entries, slug) {
-  const container = document.getElementById('entries-container');
-
-  const filtered = entries.filter(e =>
-    e.BookSlug === slug ||
-    e.BookSlug === decodeURIComponent(slug)
-  );
-
-  container.innerHTML = '';
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<p>No entries yet</p>`;
-    return;
-  }
-
-  filtered.forEach(entry => {
-    const div = document.createElement('div');
-    div.className = 'entry';
-
-    div.innerHTML = `
-      <h4>${entry.MemberName}</h4>
-      <p>⭐ ${entry.Rating}</p>
-      <p>${entry.Note || ''}</p>
-      ${
-        entry.Link
-          ? `<a href="${entry.Link}" target="_blank">View Link</a>`
-          : ''
-      }
-    `;
-
-    container.appendChild(div);
-  });
-}
-
-// HANDLE FORM SUBMIT
-document.getElementById('entry-form').addEventListener('submit', async (e) => {
+// FORM SUBMIT (SAFE)
+document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const slug = getSlugFromURL();
@@ -118,18 +74,14 @@ document.getElementById('entry-form').addEventListener('submit', async (e) => {
       body: JSON.stringify(data)
     });
 
-    const result = await res.json();
-
     if (!res.ok) {
-      alert(result.error || 'Something went wrong');
+      const err = await res.json();
+      alert(err.error || 'Error submitting');
       return;
     }
 
-    // 🔥 CLEAR FORM
     document.getElementById('entry-form').reset();
-
-    // 🔥 RELOAD PAGE DATA
-    loadBook();
+    alert("Submitted!");
 
   } catch (error) {
     console.error("Submit error:", error);
