@@ -6,7 +6,7 @@
 
   <title>Book Details</title>
 
-  <!-- Google Font -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
@@ -15,12 +15,12 @@
 
 <body>
 
-  <!-- BACK LINK -->
+  <!-- BACK -->
   <div class="back-link">
     <a href="books.html">← Back to all books</a>
   </div>
 
-  <!-- BOOK DETAILS -->
+  <!-- BOOK INFO -->
   <div id="book-container"></div>
 
   <!-- ENTRIES -->
@@ -34,8 +34,17 @@
     <h2>Add Your Thoughts</h2>
 
     <form id="entry-form">
-      <input id="name" placeholder="Your name" required />
 
+      <!-- NAME DROPDOWN ✅ -->
+      <select id="name" required>
+        <option value="">Select your name</option>
+        <option value="Courtney">Courtney</option>
+        <option value="Emily">Emily</option>
+        <option value="Alyssa">Alyssa</option>
+        <option value="Sam">Sam</option>
+      </select>
+
+      <!-- RATING -->
       <input 
         id="rating" 
         type="number" 
@@ -45,17 +54,21 @@
         required 
       />
 
+      <!-- NOTE -->
       <textarea 
         id="note" 
         placeholder="Your thoughts..."
       ></textarea>
 
+      <!-- LINK -->
       <input 
         id="link" 
         placeholder="Optional link"
       />
 
+      <!-- SUBMIT -->
       <button type="submit">Submit</button>
+
     </form>
   </div>
 
