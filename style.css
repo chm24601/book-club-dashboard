@@ -183,3 +183,9 @@ body {
 .no-rating {
   color: #aaa;
 }
+#entry-form select {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-family: inherit;
+}

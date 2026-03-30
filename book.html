@@ -35,7 +35,7 @@
 
     <form id="entry-form">
 
-      <!-- NAME DROPDOWN ✅ -->
+      <!-- NAME DROPDOWN -->
       <select id="name" required>
         <option value="">Select your name</option>
         <option value="Courtney">Courtney</option>
@@ -44,15 +44,15 @@
         <option value="Sam">Sam</option>
       </select>
 
-      <!-- RATING -->
-      <input 
-        id="rating" 
-        type="number" 
-        min="1" 
-        max="5" 
-        placeholder="Rating (1-5)" 
-        required 
-      />
+      <!-- ⭐ RATING DROPDOWN -->
+      <select id="rating" required>
+        <option value="">Select rating</option>
+        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+        <option value="4">⭐⭐⭐⭐ (4)</option>
+        <option value="3">⭐⭐⭐ (3)</option>
+        <option value="2">⭐⭐ (2)</option>
+        <option value="1">⭐ (1)</option>
+      </select>
 
       <!-- NOTE -->
       <textarea 
