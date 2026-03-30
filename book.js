@@ -172,8 +172,20 @@ async function handleEntrySubmit(event) {
 
     if (!response.ok) {
       console.error('Submit failed:', data);
-      formMessage.textContent =
-        data.error || data.details || 'Something went wrong. Please try again.';
+
+      let errorMessage = 'Something went wrong. Please try again.';
+
+      if (typeof data.error === 'string') {
+        errorMessage = data.error;
+      } else if (data.error && typeof data.error === 'object') {
+        errorMessage = JSON.stringify(data.error);
+      } else if (typeof data.details === 'string') {
+        errorMessage = data.details;
+      } else if (typeof data.message === 'string') {
+        errorMessage = data.message;
+      }
+
+      formMessage.textContent = errorMessage;
       submitButton.disabled = false;
       submitButton.textContent = 'Submit';
       return;
