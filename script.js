@@ -22,24 +22,25 @@ async function loadData() {
   }
 }
 
-// CALCULATE AVERAGE RATING
+// SAFE SLUG
+function getSlug(book) {
+  return book.Slug || book.slug || book.BookSlug || encodeURIComponent(book.Title);
+}
+
+// AVG RATING
 function getAverageRating(slug) {
   const entries = allEntries.filter(e => e.BookSlug === slug);
-
   if (entries.length === 0) return null;
 
   const total = entries.reduce((sum, e) => sum + Number(e.Rating || 0), 0);
   return (total / entries.length).toFixed(1);
 }
 
-// SAFE SLUG HELPER 🔥
-function getSlug(book) {
-  return book.Slug || book.slug || book.BookSlug || encodeURIComponent(book.Title);
-}
-
-// RENDER BOOKS
+// RENDER
 function renderBooks(books) {
   const container = document.getElementById('books-container');
+  if (!container) return;
+
   container.innerHTML = '';
 
   books.forEach(book => {
@@ -52,11 +53,9 @@ function renderBooks(books) {
     div.innerHTML = `
       <div class="card-content">
         <img src="${book.BookCover}" alt="${book.Title}" />
-        
         <div class="text">
           <h3>${book.Title}</h3>
           <p>${book.Author}</p>
-
           <div class="rating">
             ${
               avgRating 
@@ -68,7 +67,6 @@ function renderBooks(books) {
       </div>
     `;
 
-    // CLICK HANDLER (FIXED)
     div.addEventListener('click', () => {
       window.location.href = `book.html?slug=${slug}`;
     });
@@ -77,38 +75,48 @@ function renderBooks(books) {
   });
 }
 
-// SEARCH
-document.getElementById('search-input').addEventListener('input', (e) => {
-  const value = e.target.value.toLowerCase();
+// WAIT FOR PAGE LOAD (CRITICAL FIX)
+document.addEventListener('DOMContentLoaded', () => {
 
-  const filtered = allBooks.filter(book =>
-    book.Title.toLowerCase().includes(value) ||
-    book.Author.toLowerCase().includes(value)
-  );
+  // SEARCH (SAFE)
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const value = e.target.value.toLowerCase();
 
-  renderBooks(filtered);
-});
+      const filtered = allBooks.filter(book =>
+        book.Title.toLowerCase().includes(value) ||
+        book.Author.toLowerCase().includes(value)
+      );
 
-// SORT
-document.getElementById('sort-select').addEventListener('change', (e) => {
-  let sorted = [...allBooks];
-
-  if (e.target.value === 'title-asc') {
-    sorted.sort((a, b) => a.Title.localeCompare(b.Title));
-  }
-
-  if (e.target.value === 'title-desc') {
-    sorted.sort((a, b) => b.Title.localeCompare(a.Title));
-  }
-
-  if (e.target.value === 'rating-desc') {
-    sorted.sort((a, b) => {
-      return (getAverageRating(getSlug(b)) || 0) - (getAverageRating(getSlug(a)) || 0);
+      renderBooks(filtered);
     });
   }
 
-  renderBooks(sorted);
-});
+  // SORT (SAFE)
+  const sortSelect = document.getElementById('sort-select');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+      let sorted = [...allBooks];
 
-// INIT
-loadData();
+      if (e.target.value === 'title-asc') {
+        sorted.sort((a, b) => a.Title.localeCompare(b.Title));
+      }
+
+      if (e.target.value === 'title-desc') {
+        sorted.sort((a, b) => b.Title.localeCompare(a.Title));
+      }
+
+      if (e.target.value === 'rating-desc') {
+        sorted.sort((a, b) => {
+          return (getAverageRating(getSlug(b)) || 0) - (getAverageRating(getSlug(a)) || 0);
+        });
+      }
+
+      renderBooks(sorted);
+    });
+  }
+
+  // LOAD DATA LAST
+  loadData();
+});
