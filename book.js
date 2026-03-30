@@ -1,70 +1,204 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Book Details</title>
+let currentBookSlug = '';
 
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+async function loadBookDetails() {
+  const container = document.getElementById('book-detail-container');
 
-  <h1 class="title">The Book Club for Difficult Women</h1>
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
 
-  <main class="book-detail-page">
-    <a class="back-link" href="books.html">← Back to all books</a>
+    if (!slug) {
+      container.innerHTML = '<p>No book selected.</p>';
+      return;
+    }
 
-    <div id="book-detail-container">
-      <p>Loading book details...</p>
-    </div>
+    currentBookSlug = slug;
 
-    <section class="entry-form-section">
-      <h3>Add your thoughts</h3>
+    const response = await fetch('/api/books');
+    const data = await response.json();
 
-      <form id="entry-form">
-        <label for="memberName">Member</label>
-        <select id="memberName" name="memberName" required>
-          <option value="">Select your name</option>
-          <option value="Courtney">Courtney</option>
-          <option value="Member 2">Member 2</option>
-          <option value="Member 3">Member 3</option>
-          <option value="Member 4">Member 4</option>
-        </select>
+    if (!response.ok) {
+      container.innerHTML = '<p>Could not load book details.</p>';
+      return;
+    }
 
-        <label for="rating">Rating</label>
-        <select id="rating" name="rating" required>
-          <option value="">Select a rating</option>
-          <option value="1">1</option>
-          <option value="1.5">1.5</option>
-          <option value="2">2</option>
-          <option value="2.5">2.5</option>
-          <option value="3">3</option>
-          <option value="3.5">3.5</option>
-          <option value="4">4</option>
-          <option value="4.5">4.5</option>
-          <option value="5">5</option>
-        </select>
+    if (!data.records || !Array.isArray(data.records)) {
+      container.innerHTML = '<p>No books found.</p>';
+      return;
+    }
 
-        <label for="note">Thoughts / discussion note</label>
-        <textarea id="note" name="note" rows="5" required placeholder="Add your thoughts here..."></textarea>
+    const record = data.records.find((item) => item.fields.Slug === slug);
 
-        <label for="link">Optional link</label>
-        <input id="link" name="link" type="url" placeholder="https://..." />
+    if (!record) {
+      container.innerHTML = `<p>Book not found for slug: ${slug}</p>`;
+      return;
+    }
 
-        <button type="submit" id="submit-entry-button">Submit</button>
-        <p id="form-message"></p>
-      </form>
-    </section>
+    const book = record.fields;
+    const coverUrl = getCoverUrl(book.BookCover);
 
-    <section class="entries-section">
-      <h3>Book club discussion</h3>
-      <div id="entries-container">
-        <p>No entries yet.</p>
+    container.innerHTML = `
+      <div class="book-detail-card">
+        <img class="book-detail-cover" src="${coverUrl}" alt="${book.Title || 'Book cover'}" />
+
+        <div class="book-detail-text">
+          <h2>${book.Title || 'Untitled'}</h2>
+          <p class="book-author">${book.Author || ''}</p>
+
+          <section class="book-section">
+            <h3>Discussion</h3>
+            <p>Add your rating and thoughts below, then see the running log underneath.</p>
+          </section>
+        </div>
       </div>
-    </section>
-  </main>
+    `;
 
-  <script src="book.js"></script>
-</body>
-</html>
+    await loadEntries();
+  } catch (error) {
+    console.error('Error loading book details:', error);
+    container.innerHTML = '<p>There was a problem loading this book.</p>';
+  }
+}
+
+async function loadEntries() {
+  const entriesContainer = document.getElementById('entries-container');
+
+  if (!entriesContainer) return;
+
+  if (!currentBookSlug) {
+    entriesContainer.innerHTML = '<p>No book selected.</p>';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/entries?slug=${encodeURIComponent(currentBookSlug)}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      entriesContainer.innerHTML = '<p>Could not load entries.</p>';
+      return;
+    }
+
+    const records = data.records || [];
+
+    if (records.length === 0) {
+      entriesContainer.innerHTML = '<p>No entries yet. Be the first to add one.</p>';
+      return;
+    }
+
+    entriesContainer.innerHTML = records
+      .map((record) => {
+        const entry = record.fields;
+        const memberName = entry.MemberName || 'Unknown member';
+        const rating = entry.Rating || '';
+        const note = entry.Note || '';
+        const link = entry.Link || '';
+        const createdAt = entry.CreatedAt ? formatDate(entry.CreatedAt) : '';
+
+        return `
+          <article class="entry-card">
+            <div class="entry-header">
+              <h4>${memberName}</h4>
+              <p class="entry-meta">${rating} ★${createdAt ? ` • ${createdAt}` : ''}</p>
+            </div>
+            <p class="entry-note">${escapeHtml(note)}</p>
+            ${
+              link
+                ? `<p class="entry-link"><a href="${link}" target="_blank" rel="noopener noreferrer">Open link</a></p>`
+                : ''
+            }
+          </article>
+        `;
+      })
+      .join('');
+  } catch (error) {
+    console.error('Error loading entries:', error);
+    entriesContainer.innerHTML = '<p>There was a problem loading entries.</p>';
+  }
+}
+
+async function handleEntrySubmit(event) {
+  event.preventDefault();
+
+  const formMessage = document.getElementById('form-message');
+  const submitButton = document.getElementById('submit-entry-button');
+
+  const memberName = document.getElementById('memberName').value;
+  const rating = document.getElementById('rating').value;
+  const note = document.getElementById('note').value.trim();
+  const link = document.getElementById('link').value.trim();
+
+  formMessage.textContent = '';
+  submitButton.disabled = true;
+  submitButton.textContent = 'Submitting...';
+
+  try {
+    const response = await fetch('/api/submit-entry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bookSlug: currentBookSlug,
+        memberName,
+        rating,
+        note,
+        link,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Submit failed:', data);
+      formMessage.textContent = 'Something went wrong. Please try again.';
+      submitButton.disabled = false;
+      submitButton.textContent = 'Submit';
+      return;
+    }
+
+    document.getElementById('entry-form').reset();
+    formMessage.textContent = 'Entry added!';
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit';
+
+    await loadEntries();
+  } catch (error) {
+    console.error('Error submitting entry:', error);
+    formMessage.textContent = 'Something went wrong. Please try again.';
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit';
+  }
+}
+
+function getCoverUrl(bookCoverField) {
+  if (!bookCoverField) {
+    return 'https://via.placeholder.com/200x300?text=No+Cover';
+  }
+
+  if (typeof bookCoverField === 'string') {
+    return bookCoverField;
+  }
+
+  if (Array.isArray(bookCoverField) && bookCoverField.length > 0) {
+    return bookCoverField[0].url;
+  }
+
+  return 'https://via.placeholder.com/200x300?text=No+Cover';
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString();
+}
+
+function escapeHtml(text) {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+document.getElementById('entry-form').addEventListener('submit', handleEntrySubmit);
+
+loadBookDetails();
