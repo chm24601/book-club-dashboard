@@ -6,6 +6,12 @@ export default async function handler(req, res) {
   const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
   const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 
+  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
+    return res.status(500).json({
+      error: 'Missing Airtable environment variables',
+    });
+  }
+
   try {
     const { bookSlug, memberName, rating, note, link } = req.body;
 
@@ -15,7 +21,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const response = await fetch(
+    const airtableResponse = await fetch(
       `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/BookEntries`,
       {
         method: 'POST',
@@ -39,15 +45,19 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const data = await airtableResponse.json();
 
-    if (!response.ok) {
-      return res.status(response.status).json(data);
+    if (!airtableResponse.ok) {
+      console.error('Airtable submit error:', data);
+      return res.status(airtableResponse.status).json(data);
     }
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
     console.error('Error submitting entry:', error);
-    res.status(500).json({ error: 'Failed to submit entry' });
+    return res.status(500).json({
+      error: 'Failed to submit entry',
+      details: error.message,
+    });
   }
 }
