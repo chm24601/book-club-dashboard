@@ -85,3 +85,64 @@ color: #3e2f2f;
 .card-content .text {
   flex: 1;
 }
+.book-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  transition: 0.2s ease;
+}
+
+.book-detail-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 24px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+
+.book-detail-card {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.book-detail-cover {
+  width: 260px;
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.book-detail-text {
+  flex: 1;
+  min-width: 280px;
+}
+
+.book-detail-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.book-author {
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+  color: #666;
+}
+
+.book-section {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f8f6f2;
+}
