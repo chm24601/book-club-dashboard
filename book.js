@@ -4,7 +4,7 @@ function getSlugFromURL() {
   return params.get('slug');
 }
 
-// NORMALIZE STRINGS (FOR MATCHING)
+// NORMALIZE STRINGS (CRITICAL FOR MATCHING)
 function normalize(str) {
   return str?.toLowerCase().trim();
 }
@@ -31,7 +31,7 @@ async function loadBook() {
 
     renderBook(book);
 
-    // TRY TO LOAD ENTRIES (DON'T BREAK IF IT FAILS)
+    // TRY TO LOAD ENTRIES (DOESN'T BREAK IF FAILS)
     try {
       const entriesRes = await fetch('/api/entries');
 
@@ -47,6 +47,7 @@ async function loadBook() {
 
     } catch (err) {
       console.warn("Entries failed to load");
+      renderEntries([], slug);
     }
 
   } catch (error) {
@@ -71,15 +72,16 @@ function renderBook(book) {
   `;
 }
 
-// RENDER ENTRIES
+// RENDER ENTRIES (FIXED MATCHING + STARS)
 function renderEntries(entries, slug) {
   const container = document.getElementById('entries-container');
 
   const decodedSlug = decodeURIComponent(slug);
 
-  const filtered = entries.filter(e =>
-    normalize(e.BookSlug) === normalize(decodedSlug)
-  );
+  const filtered = entries.filter(e => {
+    if (!e.BookSlug) return false;
+    return normalize(e.BookSlug) === normalize(decodedSlug);
+  });
 
   container.innerHTML = '';
 
@@ -92,9 +94,11 @@ function renderEntries(entries, slug) {
     const div = document.createElement('div');
     div.className = 'entry';
 
+    const stars = '⭐'.repeat(Number(entry.Rating || 0));
+
     div.innerHTML = `
       <h4>${entry.MemberName}</h4>
-      <p>⭐ ${entry.Rating}</p>
+      <p>${stars}</p>
       <p>${entry.Note || ''}</p>
       ${
         entry.Link
@@ -107,7 +111,7 @@ function renderEntries(entries, slug) {
   });
 }
 
-// SUBMIT FORM
+// SUBMIT FORM (FIXED FIELD NAMES)
 document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -138,7 +142,7 @@ document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
     // CLEAR FORM
     document.getElementById('entry-form').reset();
 
-    // RELOAD PAGE DATA
+    // RELOAD BOOK + ENTRIES
     loadBook();
 
   } catch (error) {
