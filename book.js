@@ -1,3 +1,15 @@
+// FORMAT DATE → "March 2026"
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  return date.toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
 // GET SLUG FROM URL
 function getSlugFromURL() {
   const params = new URLSearchParams(window.location.search);
@@ -55,11 +67,11 @@ async function loadBook() {
   }
 }
 
-// ⭐ FIXED RENDER FUNCTION (THIS IS THE IMPORTANT PART)
+// ⭐ UPDATED RENDER FUNCTION (DATE + CURRENT PICK)
 function renderBook(book) {
   const container = document.getElementById('book-container');
 
-  console.log("BOOK DATA:", book); // helpful debug
+  console.log("BOOK DATA:", book);
 
   container.innerHTML = `
     <div class="book-detail">
@@ -69,15 +81,29 @@ function renderBook(book) {
         <h2>${book.Title}</h2>
         <p>${book.Author}</p>
 
+        ${
+          book.Current
+            ? `<p><strong>📖 Current Pick</strong></p>`
+            : ''
+        }
+
+        ${
+          book["Date Read"]
+            ? `<p><strong>Book Club Pick:</strong> ${formatDate(book["Date Read"])}</p>`
+            : ''
+        }
+
         <p>
-          <strong>Goodreads Rating:</strong> ⭐ ${book.GoodreadsRating ? book.GoodreadsRating : 'N/A'}
+          <strong>Goodreads Rating:</strong> ⭐ ${
+            book.GoodreadsRating ? book.GoodreadsRating : 'N/A'
+          }
         </p>
       </div>
     </div>
   `;
 }
 
-// RENDER ENTRIES
+// RENDER ENTRIES (UNCHANGED)
 function renderEntries(entries, slug) {
   const container = document.getElementById('entries-container');
 
@@ -116,7 +142,7 @@ function renderEntries(entries, slug) {
   });
 }
 
-// SUBMIT FORM
+// SUBMIT FORM (UNCHANGED)
 document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
