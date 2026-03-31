@@ -21,7 +21,7 @@ async function loadData() {
 
     allBooks = booksData.records.map(r => r.fields);
 
-    // ✅ SORT BY DATE (NEWEST FIRST)
+    // SORT BY DATE (NEWEST FIRST)
     allBooks.sort((a, b) => {
       const dateA = new Date(a["Date Read"] || 0);
       const dateB = new Date(b["Date Read"] || 0);
@@ -43,10 +43,9 @@ function getSlug(book) {
   return encodeURIComponent(book.Title);
 }
 
-// 🎯 YEAR FILTER DROPDOWN
+// YEAR FILTER
 function populateYearFilter(books) {
   const yearFilter = document.getElementById("yearFilter");
-
   if (!yearFilter) return;
 
   const years = [...new Set(
@@ -64,19 +63,17 @@ function populateYearFilter(books) {
   });
 }
 
-// 🔥 COMBINED FILTER (SEARCH + YEAR)
+// COMBINED FILTER (SEARCH + YEAR)
 function applyFilters() {
   const searchValue = document.getElementById('search-input')?.value.toLowerCase() || '';
   const selectedYear = document.getElementById('yearFilter')?.value || 'all';
 
   filteredBooks = allBooks.filter(book => {
 
-    // SEARCH MATCH
     const matchesSearch =
       book.Title.toLowerCase().includes(searchValue) ||
       book.Author.toLowerCase().includes(searchValue);
 
-    // YEAR MATCH
     const matchesYear =
       selectedYear === 'all' ||
       (book["Date Read"] &&
@@ -91,13 +88,21 @@ function applyFilters() {
 // RENDER BOOKS
 function renderBooks(books) {
   const container = document.getElementById('books-container');
-  container.innerHTML = '';
+
+  // 🧱 NEW STRUCTURE
+  container.innerHTML = `
+    <div id="current-section"></div>
+    <div id="books-section"></div>
+  `;
+
+  const currentSection = document.getElementById('current-section');
+  const booksSection = document.getElementById('books-section');
 
   // ⭐ FIND CURRENT BOOK
   const currentBook = books.find(b => b.Current);
   const otherBooks = books.filter(b => !b.Current);
 
-  // ⭐ RENDER CURRENT PICK
+  // ⭐ CURRENT PICK (FULL WIDTH)
   if (currentBook) {
     const currentDiv = document.createElement('div');
     currentDiv.className = 'current-book';
@@ -127,14 +132,18 @@ function renderBooks(books) {
       window.location.href = `book.html?slug=${getSlug(currentBook)}`;
     });
 
-    container.appendChild(currentDiv);
+    currentSection.appendChild(currentDiv);
   }
 
-  // 📚 HEADER FOR REST
+  // 📚 HEADER
   const listHeader = document.createElement('h2');
   listHeader.className = 'section-header';
   listHeader.innerText = 'All Books';
-  container.appendChild(listHeader);
+  booksSection.appendChild(listHeader);
+
+  // 📚 GRID WRAPPER (IMPORTANT)
+  const grid = document.createElement('div');
+  grid.className = 'books-grid';
 
   // 📚 RENDER OTHER BOOKS
   otherBooks.forEach(book => {
@@ -164,8 +173,10 @@ function renderBooks(books) {
       window.location.href = `book.html?slug=${slug}`;
     });
 
-    container.appendChild(div);
+    grid.appendChild(div);
   });
+
+  booksSection.appendChild(grid);
 }
 
 // INIT

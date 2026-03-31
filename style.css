@@ -235,3 +235,21 @@ body {
   font-size: 0.9rem;
   color: #6a4f4f;
 }
+/* CURRENT PICK FULL WIDTH */
+#current-section {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+/* CENTER CURRENT CARD */
+.current-book .book-card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* GRID ONLY FOR BOOKS */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+}
