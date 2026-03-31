@@ -13,6 +13,22 @@ function formatDate(dateString) {
   });
 }
 
+// ⭐ STAR RATING FUNCTION
+function getStarRating(rating) {
+  if (!rating) return "";
+
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+
+  let stars = "⭐".repeat(fullStars);
+
+  if (halfStar) {
+    stars += "✨"; // half star
+  }
+
+  return stars;
+}
+
 // LOAD DATA
 async function loadData() {
   try {
@@ -89,7 +105,6 @@ function applyFilters() {
 function renderBooks(books) {
   const container = document.getElementById('books-container');
 
-  // 🧱 NEW STRUCTURE
   container.innerHTML = `
     <div id="current-section"></div>
     <div id="books-section"></div>
@@ -98,11 +113,10 @@ function renderBooks(books) {
   const currentSection = document.getElementById('current-section');
   const booksSection = document.getElementById('books-section');
 
-  // ⭐ FIND CURRENT BOOK
   const currentBook = books.find(b => b.Current);
   const otherBooks = books.filter(b => !b.Current);
 
-  // ⭐ CURRENT PICK (FULL WIDTH)
+  // ⭐ CURRENT PICK
   if (currentBook) {
     const currentDiv = document.createElement('div');
     currentDiv.className = 'current-book';
@@ -116,6 +130,12 @@ function renderBooks(books) {
           <div class="text">
             <h3>${currentBook.Title}</h3>
             <p>${currentBook.Author}</p>
+
+            ${
+              currentBook["Rating"]
+                ? `<p class="rating">${getStarRating(currentBook["Rating"])} (${currentBook["Rating"]})</p>`
+                : `<p class="no-rating">No rating</p>`
+            }
 
             ${
               currentBook["Date Read"]
@@ -135,17 +155,16 @@ function renderBooks(books) {
     currentSection.appendChild(currentDiv);
   }
 
-  // 📚 HEADER
+  // HEADER
   const listHeader = document.createElement('h2');
   listHeader.className = 'section-header';
   listHeader.innerText = 'All Books';
   booksSection.appendChild(listHeader);
 
-  // 📚 GRID WRAPPER (IMPORTANT)
   const grid = document.createElement('div');
   grid.className = 'books-grid';
 
-  // 📚 RENDER OTHER BOOKS
+  // OTHER BOOKS
   otherBooks.forEach(book => {
     const slug = getSlug(book);
 
@@ -158,6 +177,12 @@ function renderBooks(books) {
         <div class="text">
           <h3>${book.Title}</h3>
           <p>${book.Author}</p>
+
+          ${
+            book["Rating"]
+              ? `<p class="rating">${getStarRating(book["Rating"])} (${book["Rating"]})</p>`
+              : `<p class="no-rating">No rating</p>`
+          }
 
           ${
             book["Date Read"]
