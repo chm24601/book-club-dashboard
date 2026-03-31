@@ -1,5 +1,5 @@
 let allBooks = [];
-let allEntries = [];
+let filteredBooks = [];
 
 // FORMAT DATE → "March 2026"
 function formatDate(dateString) {
@@ -28,7 +28,10 @@ async function loadData() {
       return dateB - dateA;
     });
 
-    renderBooks(allBooks);
+    filteredBooks = allBooks;
+
+    populateYearFilter(allBooks);
+    renderBooks(filteredBooks);
 
   } catch (error) {
     console.error('Error loading books:', error);
@@ -38,6 +41,51 @@ async function loadData() {
 // SAFE SLUG
 function getSlug(book) {
   return encodeURIComponent(book.Title);
+}
+
+// 🎯 YEAR FILTER DROPDOWN
+function populateYearFilter(books) {
+  const yearFilter = document.getElementById("yearFilter");
+
+  if (!yearFilter) return;
+
+  const years = [...new Set(
+    books
+      .map(book => book["Date Read"])
+      .filter(date => date)
+      .map(date => new Date(date).getFullYear())
+  )].sort((a, b) => b - a);
+
+  years.forEach(year => {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    yearFilter.appendChild(option);
+  });
+}
+
+// 🔥 COMBINED FILTER (SEARCH + YEAR)
+function applyFilters() {
+  const searchValue = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const selectedYear = document.getElementById('yearFilter')?.value || 'all';
+
+  filteredBooks = allBooks.filter(book => {
+
+    // SEARCH MATCH
+    const matchesSearch =
+      book.Title.toLowerCase().includes(searchValue) ||
+      book.Author.toLowerCase().includes(searchValue);
+
+    // YEAR MATCH
+    const matchesYear =
+      selectedYear === 'all' ||
+      (book["Date Read"] &&
+        new Date(book["Date Read"]).getFullYear() == selectedYear);
+
+    return matchesSearch && matchesYear;
+  });
+
+  renderBooks(filteredBooks);
 }
 
 // RENDER BOOKS
@@ -120,21 +168,18 @@ function renderBooks(books) {
   });
 }
 
-// SEARCH (unchanged, but still works perfectly)
+// INIT
 document.addEventListener('DOMContentLoaded', () => {
+
   const searchInput = document.getElementById('search-input');
+  const yearFilter = document.getElementById('yearFilter');
 
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const value = e.target.value.toLowerCase();
+    searchInput.addEventListener('input', applyFilters);
+  }
 
-      const filtered = allBooks.filter(book =>
-        book.Title.toLowerCase().includes(value) ||
-        book.Author.toLowerCase().includes(value)
-      );
-
-      renderBooks(filtered);
-    });
+  if (yearFilter) {
+    yearFilter.addEventListener('change', applyFilters);
   }
 
   loadData();
