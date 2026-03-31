@@ -140,7 +140,7 @@ function renderBooks(books) {
             ${
               currentBook["Rating"]
                 ? `<p class="rating">${getStarRating(currentBook["Rating"])} (${currentBook["Rating"]})</p>`
-                : `<p class="no-rating">No rating</p>`
+                : ''
             }
 
             ${
