@@ -29,6 +29,11 @@ function getStarRating(rating) {
   return stars;
 }
 
+// SAFE SLUG
+function getSlug(book) {
+  return encodeURIComponent(book.Title);
+}
+
 // LOAD DATA
 async function loadData() {
   try {
@@ -42,12 +47,12 @@ async function loadData() {
 
     allBooks = booksData.records.map(r => r.fields);
 
-    // ⭐ CALCULATE BOOK CLUB AVERAGE (FIXED)
+    // ⭐ CALCULATE BOOK CLUB AVERAGE (FIXED WITH BOOKSLUG)
     allBooks = allBooks.map(book => {
+      const slug = getSlug(book);
+
       const bookEntries = entries.filter(e =>
-        e.Title &&
-        book.Title &&
-        e.Title.trim().toLowerCase() === book.Title.trim().toLowerCase()
+        e.BookSlug && e.BookSlug === slug
       );
 
       const ratings = bookEntries
@@ -82,11 +87,6 @@ async function loadData() {
   } catch (error) {
     console.error('Error loading data:', error);
   }
-}
-
-// SAFE SLUG
-function getSlug(book) {
-  return encodeURIComponent(book.Title);
 }
 
 // YEAR FILTER
