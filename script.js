@@ -35,9 +35,35 @@ async function loadData() {
     const booksRes = await fetch('/api/books');
     const booksData = await booksRes.json();
 
+    const entriesRes = await fetch('/api/entries');
+    const entriesData = await entriesRes.json();
+
+    const entries = entriesData.records.map(r => r.fields);
+
     allBooks = booksData.records.map(r => r.fields);
 
-    // SORT BY DATE (NEWEST FIRST)
+    // ⭐ CALCULATE BOOK CLUB AVERAGE
+    allBooks = allBooks.map(book => {
+      const bookEntries = entries.filter(e => e.Book === book.Title);
+
+      const ratings = bookEntries
+        .map(e => Number(e.Rating))
+        .filter(r => !isNaN(r));
+
+      let avg = null;
+
+      if (ratings.length > 0) {
+        avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+        avg = Math.round(avg * 10) / 10;
+      }
+
+      return {
+        ...book,
+        AverageRating: avg
+      };
+    });
+
+    // SORT BY DATE
     allBooks.sort((a, b) => {
       const dateA = new Date(a["Date Read"] || 0);
       const dateB = new Date(b["Date Read"] || 0);
@@ -50,7 +76,7 @@ async function loadData() {
     renderBooks(filteredBooks);
 
   } catch (error) {
-    console.error('Error loading books:', error);
+    console.error('Error loading data:', error);
   }
 }
 
@@ -79,7 +105,7 @@ function populateYearFilter(books) {
   });
 }
 
-// FILTER (SEARCH + YEAR)
+// FILTER
 function applyFilters() {
   const searchValue = document.getElementById('search-input')?.value.toLowerCase() || '';
   const selectedYear = document.getElementById('yearFilter')?.value || 'all';
@@ -138,8 +164,8 @@ function renderBooks(books) {
             }
 
             ${
-              currentBook["Rating"]
-                ? `<p class="rating">${getStarRating(currentBook["Rating"])} (${currentBook["Rating"]})</p>`
+              currentBook.AverageRating
+                ? `<p class="club-rating">Book Club Rating: ${getStarRating(currentBook.AverageRating)} (${currentBook.AverageRating})</p>`
                 : ''
             }
 
@@ -191,8 +217,8 @@ function renderBooks(books) {
           }
 
           ${
-            book["Rating"]
-              ? `<p class="rating">${getStarRating(book["Rating"])} (${book["Rating"]})</p>`
+            book.AverageRating
+              ? `<p class="club-rating">Book Club Rating: ${getStarRating(book.AverageRating)} (${book.AverageRating})</p>`
               : ''
           }
 
