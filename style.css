@@ -284,3 +284,14 @@ body {
   font-weight: 600;
   color: #5c3d3d;
 }
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.top-nav a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
