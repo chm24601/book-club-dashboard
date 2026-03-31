@@ -47,12 +47,14 @@ async function loadData() {
 
     allBooks = booksData.records.map(r => r.fields);
 
-    // ⭐ CALCULATE BOOK CLUB AVERAGE
+    // ⭐ CALCULATE BOOK CLUB AVERAGE (FIXED MATCHING)
     allBooks = allBooks.map(book => {
       const slug = getSlug(book);
 
       const bookEntries = entries.filter(e =>
-        e.BookSlug && e.BookSlug === slug
+        e.BookSlug &&
+        slug &&
+        e.BookSlug.trim().toLowerCase() === slug.trim().toLowerCase()
       );
 
       const ratings = bookEntries
