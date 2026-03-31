@@ -28,7 +28,6 @@ body {
 }
 
 #search-input,
-#sort-select,
 #yearFilter {
   padding: 10px 14px;
   border-radius: 10px;
@@ -39,21 +38,59 @@ body {
 }
 
 #search-input:focus,
-#sort-select:focus,
 #yearFilter:focus {
   outline: none;
   border-color: #7a2e2e;
 }
 
-/* GRID */
+/* MAIN CONTAINER */
 #books-container {
+  width: 100%;
+}
+
+/* SECTION HEADERS */
+.section-header {
+  font-size: 1.6rem;
+  margin-bottom: 14px;
+}
+
+/* ========================= */
+/* CURRENT PICK SECTION */
+/* ========================= */
+
+#current-section {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+/* THIS IS THE FIX: full horizontal row */
+.current-book {
+  width: 100%;
+}
+
+/* Current card behaves like a normal card but sits alone */
+.current-book .book-card {
+  max-width: 500px;
+}
+
+/* ========================= */
+/* GRID SECTION */
+/* ========================= */
+
+#books-section {
+  width: 100%;
+}
+
+.books-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 28px;
-  align-items: stretch;
 }
 
+/* ========================= */
 /* BOOK CARD */
+/* ========================= */
+
 .book-card {
   background: #fffdf8;
   padding: 18px;
@@ -128,18 +165,15 @@ body {
 }
 
 /* DATE */
-.card-content .date {
+.date-read {
   font-size: 0.85rem;
   color: #8a6a6a;
 }
 
-/* CURRENT PICK (optional highlight) */
-.current-pick {
-  border: 2px solid #7a2e2e;
-  background: #fff8f5;
-}
-
+/* ========================= */
 /* DETAIL PAGE */
+/* ========================= */
+
 .book-detail {
   display: flex;
   gap: 30px;
@@ -168,7 +202,10 @@ body {
   font-size: 14px;
 }
 
+/* ========================= */
 /* ENTRIES */
+/* ========================= */
+
 .entries-section {
   max-width: 800px;
   margin: 0 auto 40px;
@@ -184,7 +221,10 @@ body {
   margin-bottom: 12px;
 }
 
+/* ========================= */
 /* FORM */
+/* ========================= */
+
 .form-section {
   max-width: 800px;
   margin: 0 auto;
@@ -219,7 +259,10 @@ body {
   background: #5f2323;
 }
 
-/* RATING */
+/* ========================= */
+/* RATINGS */
+/* ========================= */
+
 .rating {
   margin-top: 6px;
   font-size: 14px;
@@ -234,22 +277,4 @@ body {
   margin-top: 10px;
   font-size: 0.9rem;
   color: #6a4f4f;
-}
-/* CURRENT PICK FULL WIDTH */
-#current-section {
-  width: 100%;
-  margin-bottom: 40px;
-}
-
-/* CENTER CURRENT CARD */
-.current-book .book-card {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* GRID ONLY FOR BOOKS */
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 28px;
 }
