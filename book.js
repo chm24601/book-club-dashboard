@@ -18,10 +18,7 @@ function getStarRating(rating) {
   const halfStar = rating % 1 >= 0.5;
 
   let stars = "⭐".repeat(fullStars);
-
-  if (halfStar) {
-    stars += "✨";
-  }
+  if (halfStar) stars += "✨";
 
   return stars;
 }
@@ -37,19 +34,23 @@ function normalize(str) {
   return str?.toLowerCase().trim();
 }
 
-// 👉 GET NEXT BOOK
-function getNextBookSlug(books, currentSlug) {
+// 🔥 UPDATED NAV (PREV + NEXT)
+function getBookNavigation(books, currentSlug) {
   const decodedSlug = decodeURIComponent(currentSlug);
 
   const currentIndex = books.findIndex(b =>
     normalize(b.Title) === normalize(decodedSlug)
   );
 
-  if (currentIndex === -1) return null;
+  if (currentIndex === -1) return {};
 
+  const prevIndex = (currentIndex - 1 + books.length) % books.length;
   const nextIndex = (currentIndex + 1) % books.length;
 
-  return encodeURIComponent(books[nextIndex].Title);
+  return {
+    prev: encodeURIComponent(books[prevIndex].Title),
+    next: encodeURIComponent(books[nextIndex].Title)
+  };
 }
 
 // LOAD BOOK + ENTRIES
@@ -62,8 +63,8 @@ async function loadBook() {
 
     const books = booksData.records.map(r => r.fields);
 
-    // 👉 GET NEXT BOOK
-    const nextSlug = getNextBookSlug(books, slug);
+    // 🔥 USE NEW NAV
+    const { prev, next } = getBookNavigation(books, slug);
 
     // FIND CURRENT BOOK
     const book = books.find(b =>
@@ -73,12 +74,6 @@ async function loadBook() {
     if (!book) {
       console.error("Book not found:", slug);
       return;
-    }
-
-    // 👉 SET NEXT LINK
-    const nextLink = document.getElementById("next-book-link");
-    if (nextSlug && nextLink) {
-      nextLink.href = `book.html?slug=${nextSlug}`;
     }
 
     // LOAD ENTRIES
@@ -99,7 +94,7 @@ async function loadBook() {
       console.warn("Entries failed to load");
     }
 
-    // FILTER ENTRIES FOR THIS BOOK
+    // FILTER ENTRIES
     const decodedSlug = decodeURIComponent(slug);
 
     const bookEntries = entries.filter(e =>
@@ -119,10 +114,21 @@ async function loadBook() {
       avg = Math.round(avg * 10) / 10;
     }
 
-    // RENDER BOOK
+    // 🔥 RENDER FIRST
     renderBook(book, avg);
 
-    // RENDER ENTRIES
+    // 🔥 SET LINKS AFTER RENDER (THIS FIXES CLICK ISSUE)
+    const prevLink = document.getElementById("prev-book-link");
+    const nextLink = document.getElementById("next-book-link");
+
+    if (prev && prevLink) {
+      prevLink.href = `book.html?slug=${prev}`;
+    }
+
+    if (next && nextLink) {
+      nextLink.href = `book.html?slug=${next}`;
+    }
+
     renderEntries(bookEntries);
 
   } catch (error) {
@@ -130,14 +136,18 @@ async function loadBook() {
   }
 }
 
-// RENDER BOOK (WITH NEXT NAV)
+// 🔥 UPDATED NAV LAYOUT (OPTION 2)
 function renderBook(book, avg) {
   const container = document.getElementById('book-container');
 
   container.innerHTML = `
     <div class="top-nav">
       <a href="books.html">← Back to all books</a>
-      <a id="next-book-link">Next →</a>
+
+      <div class="nav-right">
+        <a id="prev-book-link">← Previous</a>
+        <a id="next-book-link">Next →</a>
+      </div>
     </div>
 
     <div class="book-detail">
@@ -175,7 +185,7 @@ function renderBook(book, avg) {
   `;
 }
 
-// RENDER ENTRIES
+// RENDER ENTRIES (UNCHANGED)
 function renderEntries(entries) {
   const container = document.getElementById('entries-container');
 

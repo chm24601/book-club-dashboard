@@ -295,3 +295,20 @@ body {
   color: #333;
   font-size: 14px;
 }
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.nav-right {
+  display: flex;
+  gap: 18px;
+}
+
+.top-nav a {
+  text-decoration: none;
+  color: #3e2f2f;
+  font-size: 14px;
+}
