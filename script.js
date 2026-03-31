@@ -47,7 +47,7 @@ async function loadData() {
 
     allBooks = booksData.records.map(r => r.fields);
 
-    // ⭐ CALCULATE BOOK CLUB AVERAGE (FIXED WITH BOOKSLUG)
+    // ⭐ CALCULATE BOOK CLUB AVERAGE
     allBooks = allBooks.map(book => {
       const slug = getSlug(book);
 
@@ -169,7 +169,7 @@ function renderBooks(books) {
 
             ${
               currentBook.AverageRating
-                ? `<p class="club-rating">Book Club Rating: ${getStarRating(currentBook.AverageRating)} (${currentBook.AverageRating})</p>`
+                ? `<p class="club-rating">Book Club Rating: ${getStarRating(currentBook.AverageRating)}</p>`
                 : ''
             }
 
@@ -222,7 +222,7 @@ function renderBooks(books) {
 
           ${
             book.AverageRating
-              ? `<p class="club-rating">Book Club Rating: ${getStarRating(book.AverageRating)} (${book.AverageRating})</p>`
+              ? `<p class="club-rating">Book Club Rating: ${getStarRating(book.AverageRating)}</p>`
               : ''
           }
 
