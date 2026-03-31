@@ -132,8 +132,8 @@ function renderBooks(books) {
             <p>${currentBook.Author}</p>
 
             ${
-              currentBook["Goodreads Rating"]
-                ? `<p class="goodreads-rating">Goodreads Rating: ${currentBook["Goodreads Rating"]}</p>`
+              currentBook["GoodreadsRating"]
+                ? `<p class="goodreads-rating">Goodreads Rating: ${currentBook["GoodreadsRating"]}</p>`
                 : ''
             }
 
@@ -185,8 +185,8 @@ function renderBooks(books) {
           <p>${book.Author}</p>
 
           ${
-            book["Goodreads Rating"]
-              ? `<p class="goodreads-rating">Goodreads Rating: ${book["Goodreads Rating"]}</p>`
+            book["GoodreadsRating"]
+              ? `<p class="goodreads-rating">Goodreads Rating: ${book["GoodreadsRating"]}</p>`
               : ''
           }
 
