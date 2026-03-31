@@ -44,7 +44,7 @@ async function loadData() {
 
     // ⭐ CALCULATE BOOK CLUB AVERAGE
     allBooks = allBooks.map(book => {
-      const bookEntries = entries.filter(e => e.Title === book.Title);
+   const bookEntries = entries.filter(e => e.Book === book.Title);
 
       const ratings = bookEntries
         .map(e => Number(e.Rating))
