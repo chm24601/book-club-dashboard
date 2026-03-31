@@ -13,7 +13,7 @@ function formatDate(dateString) {
   });
 }
 
-// ⭐ STAR RATING FUNCTION
+// ⭐ STAR FUNCTION (supports .5)
 function getStarRating(rating) {
   if (!rating) return "";
 
@@ -23,7 +23,7 @@ function getStarRating(rating) {
   let stars = "⭐".repeat(fullStars);
 
   if (halfStar) {
-    stars += "✨"; // half star
+    stars += "✨";
   }
 
   return stars;
@@ -79,7 +79,7 @@ function populateYearFilter(books) {
   });
 }
 
-// COMBINED FILTER (SEARCH + YEAR)
+// FILTER (SEARCH + YEAR)
 function applyFilters() {
   const searchValue = document.getElementById('search-input')?.value.toLowerCase() || '';
   const selectedYear = document.getElementById('yearFilter')?.value || 'all';
@@ -132,6 +132,12 @@ function renderBooks(books) {
             <p>${currentBook.Author}</p>
 
             ${
+              currentBook["Goodreads Rating"]
+                ? `<p class="goodreads-rating">Goodreads Rating: ${currentBook["Goodreads Rating"]}</p>`
+                : ''
+            }
+
+            ${
               currentBook["Rating"]
                 ? `<p class="rating">${getStarRating(currentBook["Rating"])} (${currentBook["Rating"]})</p>`
                 : `<p class="no-rating">No rating</p>`
@@ -177,6 +183,12 @@ function renderBooks(books) {
         <div class="text">
           <h3>${book.Title}</h3>
           <p>${book.Author}</p>
+
+          ${
+            book["Goodreads Rating"]
+              ? `<p class="goodreads-rating">Goodreads Rating: ${book["Goodreads Rating"]}</p>`
+              : ''
+          }
 
           ${
             book["Rating"]
