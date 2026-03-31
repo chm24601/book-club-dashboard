@@ -42,9 +42,13 @@ async function loadData() {
 
     allBooks = booksData.records.map(r => r.fields);
 
-    // ⭐ CALCULATE BOOK CLUB AVERAGE
+    // ⭐ CALCULATE BOOK CLUB AVERAGE (FIXED)
     allBooks = allBooks.map(book => {
-   const bookEntries = entries.filter(e => e.Book === book.Title);
+      const bookEntries = entries.filter(e =>
+        e.Title &&
+        book.Title &&
+        e.Title.trim().toLowerCase() === book.Title.trim().toLowerCase()
+      );
 
       const ratings = bookEntries
         .map(e => Number(e.Rating))
