@@ -1,15 +1,24 @@
-// GET SLUG FROM URL
-function getSlugFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('slug');
-}
+let allBooks = [];
+let filteredBooks = [];
 
-// NORMALIZE STRINGS
+// ✅ FIX: normalize function (this was missing and broke everything)
 function normalize(str) {
   return str?.toLowerCase().trim();
 }
 
-// ⭐ STAR FUNCTION
+// FORMAT DATE → "March 2026"
+function formatDate(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  return date.toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+// ⭐ STAR FUNCTION (supports .5)
 function getStarRating(rating) {
   if (!rating) return "";
 
@@ -25,10 +34,13 @@ function getStarRating(rating) {
   return stars;
 }
 
-// LOAD BOOK + ENTRIES
-async function loadBook() {
-  const slug = getSlugFromURL();
+// ✅ SAFE SLUG (prevents crashes if missing)
+function getSlug(book) {
+  return book?.Slug || encodeURIComponent(book?.Title || "");
+}
 
+// LOAD DATA
+async function loadData() {
   try {
     const [booksRes, entriesRes] = await Promise.all([
       fetch('/api/books'),
@@ -38,125 +50,227 @@ async function loadBook() {
     const booksData = await booksRes.json();
     const entriesData = await entriesRes.json();
 
-    let books = booksData.records.map(r => r.fields);
     const entries = entriesData.records.map(r => r.fields);
 
-    // ✅ SORT BOOKS BY DATE (same as homepage)
-    books.sort((a, b) => {
-      const dateA = new Date(a["Date Read"] || 0);
-      const dateB = new Date(b["Date Read"] || 0);
+    allBooks = booksData.records.map(r => r.fields);
+
+    // ⭐ CALCULATE BOOK CLUB AVERAGE (SAFE + FIXED)
+    allBooks = allBooks.map(book => {
+
+      const bookEntries = entries.filter(e =>
+        e?.BookSlug &&
+        (
+          normalize(e.BookSlug) === normalize(book?.Slug || "") ||
+          normalize(e.BookSlug) === normalize(book?.Title || "")
+        )
+      );
+
+      const ratings = bookEntries
+        .map(e => Number(e?.Rating))
+        .filter(r => !isNaN(r));
+
+      let avg = null;
+
+      if (ratings.length > 0) {
+        avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+        avg = Math.round(avg * 10) / 10;
+      }
+
+      return {
+        ...book,
+        AverageRating: avg
+      };
+    });
+
+    // SORT BY DATE (newest first)
+    allBooks.sort((a, b) => {
+      const dateA = new Date(a?.["Date Read"] || 0);
+      const dateB = new Date(b?.["Date Read"] || 0);
       return dateB - dateA;
     });
 
-    // ✅ FIND CURRENT BOOK (using slug safely)
-    const bookIndex = books.findIndex(b =>
-      normalize(b.Slug) === normalize(slug) ||
-      normalize(b.Title) === normalize(decodeURIComponent(slug))
-    );
+    filteredBooks = allBooks;
 
-    const book = books[bookIndex];
+    populateYearFilter(allBooks);
+    renderBooks(filteredBooks);
 
-    if (!book) {
-      console.error("Book not found:", slug);
-      return;
-    }
-
-    // ⭐ CALCULATE RATING
-    const bookEntries = entries.filter(e =>
-      e.BookSlug &&
-      (
-        normalize(e.BookSlug) === normalize(book.Slug) ||
-        normalize(e.BookSlug) === normalize(book.Title)
-      )
-    );
-
-    const ratings = bookEntries
-      .map(e => Number(e.Rating))
-      .filter(r => !isNaN(r));
-
-    let avg = null;
-
-    if (ratings.length > 0) {
-      avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-      avg = Math.round(avg * 10) / 10;
-    }
-
-    renderBook(book, avg);
-
-    renderEntries(bookEntries);
-
-    // ✅ FIXED NEXT / PREVIOUS (chronological)
-    const prevBook = books[bookIndex + 1]; // older
-    const nextBook = books[bookIndex - 1]; // newer
-
-    const navContainer = document.getElementById('book-nav');
-
-    if (navContainer) {
-      navContainer.innerHTML = `
-        ${prevBook ? `<a href="book.html?slug=${prevBook.Slug}" class="nav-link">← Previous</a>` : ''}
-        <a href="books.html" class="nav-link">Back to all books</a>
-        ${nextBook ? `<a href="book.html?slug=${nextBook.Slug}" class="nav-link">Next →</a>` : ''}
-      `;
-    }
-
-  } catch (err) {
-    console.error("Error loading book:", err);
+  } catch (error) {
+    console.error('Error loading data:', error);
   }
 }
 
-// RENDER BOOK
-function renderBook(book, avgRating) {
-  const container = document.getElementById('book-container');
+// YEAR FILTER
+function populateYearFilter(books) {
+  const yearFilter = document.getElementById("yearFilter");
+  if (!yearFilter) return;
 
-  container.innerHTML = `
-    <div class="book-detail">
-      <img src="${book.BookCover}" alt="${book.Title}" />
+  const years = [...new Set(
+    books
+      .map(book => book?.["Date Read"])
+      .filter(date => date)
+      .map(date => new Date(date).getFullYear())
+  )].sort((a, b) => b - a);
 
-      <div class="book-info">
-        <h1>${book.Title}</h1>
-        <p class="author">${book.Author}</p>
-
-        ${
-          book["Date Read"]
-            ? `<p><strong>Book Club Pick:</strong> ${new Date(book["Date Read"]).toLocaleString("en-US", { month: "long", year: "numeric" })}</p>`
-            : ''
-        }
-
-        ${
-          book["GoodreadsRating"]
-            ? `<p><strong>Goodreads Rating:</strong> ⭐ ${book["GoodreadsRating"]}</p>`
-            : ''
-        }
-
-        ${
-          avgRating
-            ? `<p><strong>Book Club Rating:</strong> ${getStarRating(avgRating)}</p>`
-            : ''
-        }
-      </div>
-    </div>
-  `;
+  years.forEach(year => {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    yearFilter.appendChild(option);
+  });
 }
 
-// RENDER ENTRIES
-function renderEntries(entries) {
-  const container = document.getElementById('entries-container');
+// FILTER
+function applyFilters() {
+  const searchValue = document.getElementById('search-input')?.value.toLowerCase() || '';
+  const selectedYear = document.getElementById('yearFilter')?.value || 'all';
+
+  filteredBooks = allBooks.filter(book => {
+
+    const matchesSearch =
+      book?.Title?.toLowerCase().includes(searchValue) ||
+      book?.Author?.toLowerCase().includes(searchValue);
+
+    const matchesYear =
+      selectedYear === 'all' ||
+      (book?.["Date Read"] &&
+        new Date(book["Date Read"]).getFullYear() == selectedYear);
+
+    return matchesSearch && matchesYear;
+  });
+
+  renderBooks(filteredBooks);
+}
+
+// RENDER BOOKS
+function renderBooks(books) {
+  const container = document.getElementById('books-container');
 
   if (!container) return;
 
-  if (entries.length === 0) {
-    container.innerHTML = `<p>No entries yet.</p>`;
-    return;
+  container.innerHTML = `
+    <div id="current-section"></div>
+    <div id="books-section"></div>
+  `;
+
+  const currentSection = document.getElementById('current-section');
+  const booksSection = document.getElementById('books-section');
+
+  const currentBook = books.find(b => b?.Current);
+  const otherBooks = books.filter(b => !b?.Current);
+
+  // ⭐ CURRENT PICK
+  if (currentBook) {
+    const currentDiv = document.createElement('div');
+    currentDiv.className = 'current-book';
+
+    currentDiv.innerHTML = `
+      <h2 class="section-header">📖 Current Pick</h2>
+
+      <div class="book-card featured">
+        <div class="card-content">
+          <img src="${currentBook?.BookCover}" alt="${currentBook?.Title}" />
+          <div class="text">
+            <h3>${currentBook?.Title}</h3>
+            <p>${currentBook?.Author}</p>
+
+            ${
+              currentBook?.["GoodreadsRating"]
+                ? `<p class="goodreads-rating">Goodreads Rating: ${currentBook["GoodreadsRating"]}</p>`
+                : ''
+            }
+
+            ${
+              currentBook?.AverageRating
+                ? `<p class="club-rating">Book Club Rating: ${getStarRating(currentBook.AverageRating)}</p>`
+                : ''
+            }
+
+            ${
+              currentBook?.["Date Read"]
+                ? `<p class="date-read">📚 ${formatDate(currentBook["Date Read"])}</p>`
+                : ''
+            }
+
+          </div>
+        </div>
+      </div>
+    `;
+
+    currentDiv.addEventListener('click', () => {
+      window.location.href = `book.html?slug=${getSlug(currentBook)}`;
+    });
+
+    currentSection.appendChild(currentDiv);
   }
 
-  container.innerHTML = entries.map(e => `
-    <div class="entry">
-      <h4>${e.MemberName}</h4>
-      <p>${getStarRating(Number(e.Rating))}</p>
-      <p>${e.Note || ''}</p>
-    </div>
-  `).join('');
+  // HEADER
+  const listHeader = document.createElement('h2');
+  listHeader.className = 'section-header';
+  listHeader.innerText = 'All Books';
+  booksSection.appendChild(listHeader);
+
+  const grid = document.createElement('div');
+  grid.className = 'books-grid';
+
+  // OTHER BOOKS
+  otherBooks.forEach(book => {
+    const slug = getSlug(book);
+
+    const div = document.createElement('div');
+    div.className = 'book-card';
+
+    div.innerHTML = `
+      <div class="card-content">
+        <img src="${book?.BookCover}" alt="${book?.Title}" />
+        <div class="text">
+          <h3>${book?.Title}</h3>
+          <p>${book?.Author}</p>
+
+          ${
+            book?.["GoodreadsRating"]
+              ? `<p class="goodreads-rating">Goodreads Rating: ${book["GoodreadsRating"]}</p>`
+              : ''
+          }
+
+          ${
+            book?.AverageRating
+              ? `<p class="club-rating">Book Club Rating: ${getStarRating(book.AverageRating)}</p>`
+              : ''
+          }
+
+          ${
+            book?.["Date Read"]
+              ? `<p class="date-read">📚 ${formatDate(book["Date Read"])}</p>`
+              : ''
+          }
+
+        </div>
+      </div>
+    `;
+
+    div.addEventListener('click', () => {
+      window.location.href = `book.html?slug=${slug}`;
+    });
+
+    grid.appendChild(div);
+  });
+
+  booksSection.appendChild(grid);
 }
 
 // INIT
-document.addEventListener('DOMContentLoaded', loadBook);
+document.addEventListener('DOMContentLoaded', () => {
+
+  const searchInput = document.getElementById('search-input');
+  const yearFilter = document.getElementById('yearFilter');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', applyFilters);
+  }
+
+  if (yearFilter) {
+    yearFilter.addEventListener('change', applyFilters);
+  }
+
+  loadData();
+});
