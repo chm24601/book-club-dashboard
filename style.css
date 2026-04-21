@@ -312,3 +312,26 @@ body {
   color: #3e2f2f;
   font-size: 14px;
 }
+/* ========================= */
+/* BOOK NAVIGATION */
+/* ========================= */
+
+.book-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px auto 30px;
+  max-width: 900px;
+  font-family: 'Playfair Display', serif;
+}
+
+.book-nav a {
+  text-decoration: none;
+  font-size: 14px;
+  color: #3e2f2f;
+  transition: opacity 0.2s ease;
+}
+
+.book-nav a:hover {
+  opacity: 0.6;
+}

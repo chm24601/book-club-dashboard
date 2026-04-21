@@ -4,7 +4,7 @@ function getSlugFromURL() {
   return params.get('slug');
 }
 
-// NORMALIZE (safe)
+// NORMALIZE
 function normalize(str) {
   return str?.toLowerCase().trim() || "";
 }
@@ -17,10 +17,7 @@ function getStarRating(rating) {
   const halfStar = rating % 1 >= 0.5;
 
   let stars = "⭐".repeat(fullStars);
-
-  if (halfStar) {
-    stars += "✨";
-  }
+  if (halfStar) stars += "✨";
 
   return stars;
 }
@@ -41,14 +38,14 @@ async function loadBook() {
     let books = booksData.records.map(r => r.fields);
     const entries = entriesData.records.map(r => r.fields);
 
-    // SORT BOOKS (newest first)
+    // ✅ SORT BY DATE (newest first — SAME AS HOMEPAGE)
     books.sort((a, b) => {
       const dateA = new Date(a["Date Read"] || 0);
       const dateB = new Date(b["Date Read"] || 0);
       return dateB - dateA;
     });
 
-    // FIND CURRENT BOOK
+    // ✅ FIND CURRENT BOOK
     const bookIndex = books.findIndex(b =>
       normalize(b.Slug) === normalize(slug) ||
       normalize(b.Title) === normalize(decodeURIComponent(slug))
@@ -61,7 +58,7 @@ async function loadBook() {
       return;
     }
 
-    // 🔥 BULLETPROOF ENTRY MATCHING
+    // ✅ MATCH ENTRIES (robust)
     const bookEntries = entries.filter(e => {
       if (!e.BookSlug) return false;
 
@@ -70,19 +67,18 @@ async function loadBook() {
       const bookTitle = normalize(book.Title);
 
       return (
-        entrySlug.includes(bookSlug) ||
-        bookSlug.includes(entrySlug) ||
-        entrySlug.includes(bookTitle)
+        entrySlug === bookSlug ||
+        entrySlug === bookTitle ||
+        entrySlug.includes(bookSlug)
       );
     });
 
-    // CALCULATE RATING
+    // ⭐ CALCULATE AVERAGE
     const ratings = bookEntries
       .map(e => Number(e.Rating))
       .filter(r => !isNaN(r));
 
     let avg = null;
-
     if (ratings.length > 0) {
       avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
       avg = Math.round(avg * 10) / 10;
@@ -91,17 +87,17 @@ async function loadBook() {
     renderBook(book, avg);
     renderEntries(bookEntries);
 
-    // NEXT / PREVIOUS (chronological)
-    const prevBook = books[bookIndex + 1];
-    const nextBook = books[bookIndex - 1];
+    // 🔥 CHRONOLOGICAL NAVIGATION (FIXED)
+    const prevBook = books[bookIndex + 1]; // older
+    const nextBook = books[bookIndex - 1]; // newer
 
     const navContainer = document.getElementById('book-nav');
 
     if (navContainer) {
       navContainer.innerHTML = `
-        ${prevBook ? `<a href="book.html?slug=${prevBook.Slug || encodeURIComponent(prevBook.Title)}">← Previous</a>` : ''}
+        ${prevBook ? `<a href="book.html?slug=${prevBook.Slug || encodeURIComponent(prevBook.Title)}">← Previous</a>` : '<span></span>'}
         <a href="books.html">Back to all books</a>
-        ${nextBook ? `<a href="book.html?slug=${nextBook.Slug || encodeURIComponent(nextBook.Title)}">Next →</a>` : ''}
+        ${nextBook ? `<a href="book.html?slug=${nextBook.Slug || encodeURIComponent(nextBook.Title)}">Next →</a>` : '<span></span>'}
       `;
     }
 
