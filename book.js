@@ -1,4 +1,8 @@
 // FORMAT DATE → "March 2026"
+function normalize(str) {
+  return str?.toLowerCase().trim();
+}
+
 function formatDate(dateString) {
   if (!dateString) return "";
 
