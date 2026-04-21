@@ -317,3 +317,43 @@ body::after {
   font-size: 0.9rem;
   color: #6a4f4f;
 }
+/* ========================= */
+/* BOOK PAGE LAYOUT FIX */
+/* ========================= */
+
+#book-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: start;
+  max-width: 1000px;
+  margin: 0 auto 40px;
+}
+
+/* make book info stack nicely */
+.book-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* move entries to right column */
+.entries-section {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+/* make entries feel lighter */
+.entry {
+  background: #fffaf4;
+  border: 1px solid #e6d8ca;
+}
+
+/* responsive fix */
+@media (max-width: 800px) {
+  #book-container {
+    grid-template-columns: 1fr;
+  }
+}
