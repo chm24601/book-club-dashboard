@@ -1,20 +1,15 @@
-// FORMAT DATE → "March 2026"
+// GET SLUG FROM URL
+function getSlugFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('slug');
+}
+
+// NORMALIZE (safe)
 function normalize(str) {
-  return str?.toLowerCase().trim();
+  return str?.toLowerCase().trim() || "";
 }
 
-function formatDate(dateString) {
-  if (!dateString) return "";
-
-  const date = new Date(dateString);
-
-  return date.toLocaleString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
-}
-
-// ⭐ STAR FUNCTION (supports .5)
+// ⭐ STAR FUNCTION
 function getStarRating(rating) {
   if (!rating) return "";
 
@@ -22,39 +17,12 @@ function getStarRating(rating) {
   const halfStar = rating % 1 >= 0.5;
 
   let stars = "⭐".repeat(fullStars);
-  if (halfStar) stars += "✨";
+
+  if (halfStar) {
+    stars += "✨";
+  }
 
   return stars;
-}
-
-// GET SLUG FROM URL
-function getSlugFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('slug');
-}
-
-// NORMALIZE STRINGS
-function normalize(str) {
-  return str?.toLowerCase().trim();
-}
-
-// 🔥 UPDATED NAV (PREV + NEXT)
-function getBookNavigation(books, currentSlug) {
-  const decodedSlug = decodeURIComponent(currentSlug);
-
-  const currentIndex = books.findIndex(b =>
-    normalize(b.Title) === normalize(decodedSlug)
-  );
-
-  if (currentIndex === -1) return {};
-
-  const prevIndex = (currentIndex - 1 + books.length) % books.length;
-  const nextIndex = (currentIndex + 1) % books.length;
-
-  return {
-    prev: encodeURIComponent(books[prevIndex].Title),
-    next: encodeURIComponent(books[nextIndex].Title)
-  };
 }
 
 // LOAD BOOK + ENTRIES
@@ -62,51 +30,53 @@ async function loadBook() {
   const slug = getSlugFromURL();
 
   try {
-    const booksRes = await fetch('/api/books');
+    const [booksRes, entriesRes] = await Promise.all([
+      fetch('/api/books'),
+      fetch('/api/entries')
+    ]);
+
     const booksData = await booksRes.json();
+    const entriesData = await entriesRes.json();
 
-    const books = booksData.records.map(r => r.fields);
+    let books = booksData.records.map(r => r.fields);
+    const entries = entriesData.records.map(r => r.fields);
 
-    // 🔥 USE NEW NAV
-    const { prev, next } = getBookNavigation(books, slug);
+    // SORT BOOKS (newest first)
+    books.sort((a, b) => {
+      const dateA = new Date(a["Date Read"] || 0);
+      const dateB = new Date(b["Date Read"] || 0);
+      return dateB - dateA;
+    });
 
     // FIND CURRENT BOOK
-    const book = books.find(b =>
+    const bookIndex = books.findIndex(b =>
+      normalize(b.Slug) === normalize(slug) ||
       normalize(b.Title) === normalize(decodeURIComponent(slug))
     );
+
+    const book = books[bookIndex];
 
     if (!book) {
       console.error("Book not found:", slug);
       return;
     }
 
-    // LOAD ENTRIES
-    let entries = [];
+    // 🔥 BULLETPROOF ENTRY MATCHING
+    const bookEntries = entries.filter(e => {
+      if (!e.BookSlug) return false;
 
-    try {
-      const entriesRes = await fetch('/api/entries');
+      const entrySlug = normalize(e.BookSlug);
+      const bookSlug = normalize(book.Slug);
+      const bookTitle = normalize(book.Title);
 
-      if (!entriesRes.ok) throw new Error('Entries failed');
+      return (
+        entrySlug.includes(bookSlug) ||
+        bookSlug.includes(entrySlug) ||
+        entrySlug.includes(bookTitle)
+      );
+    });
 
-      const entriesData = await entriesRes.json();
-
-      entries = entriesData.records
-        ? entriesData.records.map(r => r.fields)
-        : [];
-
-    } catch (err) {
-      console.warn("Entries failed to load");
-    }
-
-    // FILTER ENTRIES
-    const decodedSlug = decodeURIComponent(slug);
-
-    const bookEntries = entries.filter(e =>
-      e.BookSlug &&
-      normalize(e.BookSlug) === normalize(decodedSlug)
-    );
-
-    // CALCULATE AVERAGE
+    // CALCULATE RATING
     const ratings = bookEntries
       .map(e => Number(e.Rating))
       .filter(r => !isNaN(r));
@@ -118,70 +88,55 @@ async function loadBook() {
       avg = Math.round(avg * 10) / 10;
     }
 
-    // 🔥 RENDER FIRST
     renderBook(book, avg);
-
-    // 🔥 SET LINKS AFTER RENDER (THIS FIXES CLICK ISSUE)
-    const prevLink = document.getElementById("prev-book-link");
-    const nextLink = document.getElementById("next-book-link");
-
-    if (prev && prevLink) {
-      prevLink.href = `book.html?slug=${prev}`;
-    }
-
-    if (next && nextLink) {
-      nextLink.href = `book.html?slug=${next}`;
-    }
-
     renderEntries(bookEntries);
 
-  } catch (error) {
-    console.error("Error loading book:", error);
+    // NEXT / PREVIOUS (chronological)
+    const prevBook = books[bookIndex + 1];
+    const nextBook = books[bookIndex - 1];
+
+    const navContainer = document.getElementById('book-nav');
+
+    if (navContainer) {
+      navContainer.innerHTML = `
+        ${prevBook ? `<a href="book.html?slug=${prevBook.Slug || encodeURIComponent(prevBook.Title)}">← Previous</a>` : ''}
+        <a href="books.html">Back to all books</a>
+        ${nextBook ? `<a href="book.html?slug=${nextBook.Slug || encodeURIComponent(nextBook.Title)}">Next →</a>` : ''}
+      `;
+    }
+
+  } catch (err) {
+    console.error("Error loading book:", err);
   }
 }
 
-// 🔥 UPDATED NAV LAYOUT (OPTION 2)
-function renderBook(book, avg) {
+// RENDER BOOK
+function renderBook(book, avgRating) {
   const container = document.getElementById('book-container');
 
   container.innerHTML = `
-    <div class="top-nav">
-      <a href="books.html">← Back to all books</a>
-
-      <div class="nav-right">
-        <a id="prev-book-link">← Previous</a>
-        <a id="next-book-link">Next →</a>
-      </div>
-    </div>
-
     <div class="book-detail">
       <img src="${book.BookCover}" alt="${book.Title}" />
 
       <div class="book-info">
-        <h2>${book.Title}</h2>
+        <h1>${book.Title}</h1>
         <p>${book.Author}</p>
 
         ${
-          book.Current
-            ? `<p><strong>📖 Current Pick</strong></p>`
-            : ''
-        }
-
-        ${
           book["Date Read"]
-            ? `<p><strong>Book Club Pick:</strong> ${formatDate(book["Date Read"])}</p>`
+            ? `<p><strong>Book Club Pick:</strong> ${new Date(book["Date Read"]).toLocaleString("en-US", { month: "long", year: "numeric" })}</p>`
             : ''
         }
 
         ${
-          book.GoodreadsRating
-            ? `<p><strong>Goodreads Rating:</strong> ⭐ ${book.GoodreadsRating}</p>`
+          book["GoodreadsRating"]
+            ? `<p><strong>Goodreads Rating:</strong> ⭐ ${book["GoodreadsRating"]}</p>`
             : ''
         }
 
         ${
-          avg
-            ? `<p class="club-rating"><strong>Book Club Rating:</strong> ${getStarRating(avg)}</p>`
+          avgRating
+            ? `<p><strong>Book Club Rating:</strong> ${getStarRating(avgRating)}</p>`
             : ''
         }
       </div>
@@ -189,76 +144,25 @@ function renderBook(book, avg) {
   `;
 }
 
-// RENDER ENTRIES (UNCHANGED)
+// RENDER ENTRIES
 function renderEntries(entries) {
   const container = document.getElementById('entries-container');
 
-  container.innerHTML = '';
+  if (!container) return;
 
   if (entries.length === 0) {
-    container.innerHTML = `<p>No thoughts yet — be the first!</p>`;
+    container.innerHTML = `<p>No entries yet.</p>`;
     return;
   }
 
-  entries.forEach(entry => {
-    const div = document.createElement('div');
-    div.className = 'entry';
-
-    div.innerHTML = `
-      <h4>${entry.MemberName}</h4>
-      ${
-        entry.Rating
-          ? `<p>${getStarRating(Number(entry.Rating))}</p>`
-          : ''
-      }
-      <p>${entry.Note || ''}</p>
-      ${
-        entry.Link
-          ? `<p><a href="${entry.Link}" target="_blank">View link</a></p>`
-          : ''
-      }
-    `;
-
-    container.appendChild(div);
-  });
+  container.innerHTML = entries.map(e => `
+    <div class="entry">
+      <h4>${e.MemberName}</h4>
+      <p>${getStarRating(Number(e.Rating))}</p>
+      <p>${e.Note || ''}</p>
+    </div>
+  `).join('');
 }
 
-// SUBMIT FORM (UNCHANGED)
-document.getElementById('entry-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const slug = getSlugFromURL();
-
-  const data = {
-    bookSlug: slug,
-    memberName: document.getElementById('name').value,
-    rating: document.getElementById('rating').value,
-    note: document.getElementById('note').value,
-    link: document.getElementById('link').value
-  };
-
-  try {
-    const res = await fetch('/api/submit-entry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    const result = await res.json();
-
-    if (!res.ok) {
-      alert(result.error || 'Something went wrong');
-      return;
-    }
-
-    document.getElementById('entry-form').reset();
-
-    loadBook();
-
-  } catch (error) {
-    console.error("Submit error:", error);
-  }
-});
-
 // INIT
-loadBook();
+document.addEventListener('DOMContentLoaded', loadBook);
