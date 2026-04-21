@@ -3,26 +3,19 @@
 /* ========================= */
 
 body {
-  color: #f4ede5;
+  color: #2a1f1f;
   font-family: 'Playfair Display', serif;
   margin: 0;
   padding: 40px;
-  background: linear-gradient(to bottom, #2a1f1f, #1f1717);
+  background: linear-gradient(to bottom, #f7f2eb, #efe6dc);
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   animation: fadeIn 0.6s ease;
+  position: relative;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ========================= */
-/* VINE CORNERS */
-/* ========================= */
-
+/* subtle floral overlays */
 body::before,
 body::after {
   content: "";
@@ -32,21 +25,28 @@ body::after {
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
-  z-index: 999;
-  opacity: 0.15;
+  opacity: 0.18;
+  z-index: 0;
 }
 
+/* top left */
 body::before {
   top: 0;
   left: 0;
-  background-image: url('https://i.imgur.com/7yUvePI.png');
+  background-image: url("https://www.transparenttextures.com/patterns/flower-trail.png");
 }
 
+/* bottom right */
 body::after {
   bottom: 0;
   right: 0;
-  background-image: url('https://i.imgur.com/7yUvePI.png');
+  background-image: url("https://www.transparenttextures.com/patterns/flower-trail.png");
   transform: rotate(180deg);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ========================= */
@@ -75,29 +75,18 @@ body::after {
 #search-input,
 #yearFilter {
   padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid #5a4444;
-  background: #2f2323;
-  color: #f4ede5;
+  border-radius: 14px;
+  border: 1px solid #e3d6c9;
+  background: #fffaf4;
+  font-family: inherit;
   transition: all 0.2s ease;
-}
-
-#search-input::placeholder {
-  color: #bfa8a8;
 }
 
 #search-input:focus,
 #yearFilter:focus {
   outline: none;
-  border-color: #8c3a3a;
-}
-
-/* ========================= */
-/* MAIN CONTAINER */
-/* ========================= */
-
-#books-container {
-  width: 100%;
+  border-color: #7a2e2e;
+  box-shadow: 0 0 0 2px rgba(122,46,46,0.1);
 }
 
 /* ========================= */
@@ -114,17 +103,11 @@ body::after {
 /* CURRENT PICK */
 /* ========================= */
 
-#current-section {
-  width: 100%;
-  margin-bottom: 40px;
-}
-
 .current-book .book-card {
   max-width: 700px;
-  background: linear-gradient(135deg, #f7efe6, #eaded2);
-  border: 1px solid #d6c2b0;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  color: #2a1f1f;
+  background: linear-gradient(135deg, #fffaf4, #f2e6db);
+  border: 1px solid #dccbbb;
+  box-shadow: 0 14px 45px rgba(60, 40, 30, 0.12);
 }
 
 /* ========================= */
@@ -142,27 +125,28 @@ body::after {
 /* ========================= */
 
 .book-card {
-  background: #f7efe6;
-  border: 1px solid #d6c2b0;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+  background: #fffaf4;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #e6d8ca;
+  box-shadow: 0 10px 30px rgba(60, 40, 30, 0.08);
   cursor: pointer;
   position: relative;
   transition: all 0.25s ease;
   display: flex;
   align-items: center;
   min-height: 140px;
-  border-radius: 18px;
   overflow: hidden;
-  color: #2a1f1f;
 }
 
 .book-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 26px 70px rgba(0,0,0,0.5);
-  border-color: #c4a998;
+  transform: translateY(-6px);
+  box-shadow: 0 20px 55px rgba(60, 40, 30, 0.18);
+  border-color: #d6c2b0;
 }
 
-/* TOP ACCENT */
+/* top accent line */
+
 .book-card::before {
   content: "";
   position: absolute;
@@ -173,7 +157,8 @@ body::after {
   background: #7a2e2e;
 }
 
-/* SUBTLE OVERLAY */
+/* subtle editorial glow */
+
 .book-card::after {
   content: "";
   position: absolute;
@@ -181,12 +166,15 @@ body::after {
   background: linear-gradient(
     to bottom right,
     rgba(255,255,255,0),
-    rgba(122,46,46,0.08)
+    rgba(122,46,46,0.04)
   );
   pointer-events: none;
 }
 
+/* ========================= */
 /* CARD CONTENT */
+/* ========================= */
+
 .card-content {
   display: flex;
   gap: 14px;
@@ -194,87 +182,61 @@ body::after {
   width: 100%;
 }
 
-/* IMAGE */
 .card-content img {
   width: 85px;
   height: 125px;
   object-fit: cover;
   border-radius: 10px;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
 }
 
-.book-card:hover img {
-  transform: scale(1.05);
-}
-
-/* TEXT */
 .card-content .text {
   flex: 1;
 }
 
 .card-content h3 {
   margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.2px;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .card-content p {
   margin: 4px 0;
   font-size: 0.95rem;
-  color: #5a4444;
-}
-
-/* DATE */
-.date-read {
-  font-size: 0.85rem;
-  color: #8a6a6a;
+  color: #6a4f4f;
 }
 
 /* ========================= */
 /* DETAIL PAGE */
 /* ========================= */
 
-.book-detail {
-  display: flex;
-  gap: 30px;
-  max-width: 900px;
-  margin: 0 auto 40px;
-}
-
 .book-detail img {
   width: 240px;
   border-radius: 14px;
-  border: 1px solid #cbb3a3;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  border: 1px solid #e3d5c7;
+  box-shadow: 0 10px 30px rgba(60,40,30,0.15);
 }
 
 /* ========================= */
-/* NAVIGATION */
+/* NAV */
 /* ========================= */
 
 .book-nav {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin: 20px auto 30px;
-  max-width: 900px;
-  border-bottom: 1px solid #4a3636;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e6d9cc;
   padding-bottom: 10px;
 }
 
 .book-nav a {
   text-decoration: none;
+  color: #3e2f2f;
   font-size: 14px;
-  color: #e6d6c9;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
 }
 
 .book-nav a:hover {
-  background: rgba(122,46,46,0.2);
-  transform: translateY(-1px);
+  color: #7a2e2e;
 }
 
 /* ========================= */
@@ -284,29 +246,19 @@ body::after {
 .entries-section {
   max-width: 800px;
   margin: 0 auto 40px;
-  background: #2f2323;
-  border: 1px solid #4a3636;
+  background: #f8f3ec;
   padding: 24px;
   border-radius: 16px;
+  border: 1px solid #e6d9cc;
 }
 
 .entry {
-  background: #f7efe6;
-  color: #2a1f1f;
-  border: 1px solid #e3d5c7;
+  background: white;
   padding: 18px;
   border-radius: 14px;
   margin-bottom: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-}
-
-.entry h4 {
-  font-size: 1.05rem;
-  margin-bottom: 6px;
-}
-
-.entry p {
-  line-height: 1.5;
+  border: 1px solid #eee;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 
 /* ========================= */
@@ -327,11 +279,11 @@ body::after {
 #entry-form input,
 #entry-form textarea,
 #entry-form select {
-  background: #2f2323;
-  color: #f4ede5;
-  border: 1px solid #5a4444;
   padding: 12px;
   border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fffaf4;
+  font-family: inherit;
 }
 
 #entry-form button {
@@ -342,11 +294,11 @@ body::after {
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 8px 20px rgba(122,46,46,0.4);
+  box-shadow: 0 6px 16px rgba(122,46,46,0.2);
 }
 
 #entry-form button:hover {
-  background: #5a2222;
+  background: #5f2323;
 }
 
 /* ========================= */
@@ -354,10 +306,14 @@ body::after {
 /* ========================= */
 
 .club-rating {
-  color: #7a2e2e;
+  margin-top: 6px;
+  font-size: 1.05rem;
   letter-spacing: 2px;
+  color: #7a2e2e;
 }
 
 .goodreads-rating {
-  color: #8a6a6a;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #6a4f4f;
 }
