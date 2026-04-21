@@ -284,3 +284,56 @@ body {
   font-size: 0.9rem;
   color: #6a4f4f;
 }
+/* ========================= */
+/* SUBTLE FLORAL BACKGROUND */
+/* ========================= */
+
+/* soft paper + floral texture */
+body {
+  background:
+    linear-gradient(to bottom, #f7f2eb, #efe6dc),
+    url("https://www.transparenttextures.com/patterns/cream-pixels.png");
+}
+
+/* ========================= */
+/* FLORAL CORNER ACCENTS */
+/* ========================= */
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 220px;
+  height: 220px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  opacity: 0.10; /* keep this LOW */
+  z-index: 0;
+}
+
+/* top left */
+body::before {
+  top: 0;
+  left: 0;
+  background-image: url("https://www.transparenttextures.com/patterns/vintage-wallpaper.png");
+}
+
+/* bottom right */
+body::after {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+  background-image: url("https://www.transparenttextures.com/patterns/vintage-wallpaper.png");
+}
+
+/* ========================= */
+/* MAKE CONTENT SIT ABOVE FLORALS */
+/* ========================= */
+
+#books-container,
+.title,
+.controls {
+  position: relative;
+  z-index: 1;
+}
