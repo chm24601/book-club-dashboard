@@ -482,6 +482,94 @@
               </div>
             ` : ""}
           </div>
+
+          <!-- Biggest Goodreads Contrarian -->
+          ${grComparison.length > 0 ? (() => {
+            const loveIt = grComparison.filter(b => b.diff > 0).sort((a,b) => b.diff - a.diff)[0];
+            const hateIt = grComparison.filter(b => b.diff < 0).sort((a,b) => a.diff - b.diff)[0];
+            return `
+            <div class="stat-panel">
+              <div class="stat-panel-title">Biggest Goodreads contrarians</div>
+              <p style="font-size:0.8rem;color:var(--ink-3);font-style:italic;margin-bottom:1rem;">Books where we disagreed most with the internet</p>
+
+              ${loveIt ? `
+                <span class="highlight-tag">We loved it, GR didn't</span>
+                <div class="book-highlight" style="margin-bottom:0.5rem;">
+                  ${loveIt.cover ? `<img src="${loveIt.cover}" style="width:40px;min-width:40px;height:58px;border-radius:4px;object-fit:cover;border:0.5px solid var(--line);" />` : `<div class="bh-ph"></div>`}
+                  <div class="bh-info">
+                    <span class="bh-title">${loveIt.title}</span>
+                    <span class="bh-author" style="margin-bottom:0.3rem;display:block;">${loveIt.author}</span>
+                    <span style="font-size:0.75rem;color:var(--ink-3);">Club <strong style="color:#6b2737;font-family:var(--f-display);">${loveIt.club}</strong> vs GR <strong style="color:var(--ink-2);font-family:var(--f-display);">${loveIt.gr}</strong></span>
+                  </div>
+                  <span style="font-family:var(--f-display);font-size:1rem;color:#6b2737;flex-shrink:0;">+${loveIt.diff}</span>
+                </div>
+              ` : ""}
+
+              ${hateIt ? `
+                <span class="highlight-tag" style="margin-top:0.875rem;display:block;">GR loved it, we didn't</span>
+                <div class="book-highlight">
+                  ${hateIt.cover ? `<img src="${hateIt.cover}" style="width:40px;min-width:40px;height:58px;border-radius:4px;object-fit:cover;border:0.5px solid var(--line);" />` : `<div class="bh-ph"></div>`}
+                  <div class="bh-info">
+                    <span class="bh-title">${hateIt.title}</span>
+                    <span class="bh-author" style="margin-bottom:0.3rem;display:block;">${hateIt.author}</span>
+                    <span style="font-size:0.75rem;color:var(--ink-3);">Club <strong style="color:var(--ink-2);font-family:var(--f-display);">${hateIt.club}</strong> vs GR <strong style="color:#6b2737;font-family:var(--f-display);">${hateIt.gr}</strong></span>
+                  </div>
+                  <span style="font-family:var(--f-display);font-size:1rem;color:#8a8a6a;flex-shrink:0;">${hateIt.diff}</span>
+                </div>
+              ` : ""}
+            </div>`;
+          })() : ""}
+
+          <!-- Timeline -->
+          ${(() => {
+            const timelineBooks = booksWithEntries
+              .filter(b => b["Date Read"])
+              .sort((a, b) => new Date(a["Date Read"]) - new Date(b["Date Read"]));
+
+            if (timelineBooks.length === 0) return "";
+
+            return `
+            <div class="stat-panel" style="padding-bottom:1.5rem;">
+              <div class="stat-panel-title">Reading timeline</div>
+              <p style="font-size:0.8rem;color:var(--ink-3);font-style:italic;margin-bottom:1.25rem;">Your ratings over time — faded books have no reviews yet</p>
+              <div style="position:relative;padding-left:1.5rem;">
+                <!-- vertical line -->
+                <div style="position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:rgba(30,30,16,0.15);"></div>
+
+                ${timelineBooks.map(b => {
+                  const hasRating = b.avgRating !== null;
+                  const date = new Date(b["Date Read"]).toLocaleString("en-US", { month: "short", year: "numeric" });
+                  const grRating = b["GoodreadsRating"] ? Number(b["GoodreadsRating"]) : null;
+                  return `
+                  <div style="position:relative;display:flex;gap:0.875rem;align-items:flex-start;margin-bottom:1.25rem;opacity:${hasRating ? '1' : '0.45'};">
+                    <!-- dot -->
+                    <div style="position:absolute;left:-1.5rem;top:8px;width:10px;height:10px;border-radius:50%;background:${hasRating ? '#BB858B' : 'rgba(30,30,16,0.2)'};border:2px solid ${hasRating ? '#BB858B' : 'rgba(30,30,16,0.2)'};flex-shrink:0;"></div>
+
+                    ${b.BookCover
+                      ? `<img src="${b.BookCover}" style="width:36px;min-width:36px;height:52px;border-radius:4px;object-fit:cover;border:0.5px solid var(--line);box-shadow:0 2px 6px rgba(30,30,16,0.10);" />`
+                      : `<div style="width:36px;min-width:36px;height:52px;border-radius:4px;background:linear-gradient(155deg,#D8A48F,#c4907a);border:0.5px solid var(--line);"></div>`}
+
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:0.2rem;">${date}</div>
+                      <div style="font-family:var(--f-display);font-size:0.9rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:0.2rem;">${b.Title}</div>
+                      <div style="font-size:0.75rem;font-style:italic;color:var(--ink-3);margin-bottom:0.3rem;">${b.Author}</div>
+                      ${hasRating ? `
+                        <div style="display:flex;gap:0.875rem;align-items:center;flex-wrap:wrap;">
+                          <span style="font-size:0.75rem;color:var(--ink-3);">Club <strong style="color:#BB858B;font-family:var(--f-display);">${b.avgRating}</strong></span>
+                          ${grRating ? `<span style="font-size:0.75rem;color:var(--ink-3);">GR <strong style="color:var(--ink-2);font-family:var(--f-display);">${grRating}</strong></span>` : ""}
+                          ${grRating && b.avgRating ? `
+                            <span style="font-size:0.7rem;font-style:italic;color:${b.avgRating > grRating ? '#6b2737' : '#8a8a6a'};">
+                              ${b.avgRating > grRating ? `▲ +${Math.round((b.avgRating - grRating)*10)/10} vs GR` : b.avgRating < grRating ? `▼ ${Math.round((b.avgRating - grRating)*10)/10} vs GR` : '= GR'}
+                            </span>
+                          ` : ""}
+                        </div>
+                      ` : `<span style="font-size:0.75rem;color:var(--ink-3);font-style:italic;">No reviews yet</span>`}
+                    </div>
+                  </div>`;
+                }).join("")}
+              </div>
+            </div>`;
+          })()}
         `;
 
       } catch (err) {
