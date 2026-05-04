@@ -1,296 +1,594 @@
-/* ========================= */
-/* GLOBAL */
-/* ========================= */
+
+/* ============================================================
+   BOOK CLUB â€” Dark Academia Editorial
+   Mobile-first Â· Playfair Display + EB Garamond
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+
+/* â”€â”€ Tokens â”€â”€ */
+:root {
+  --bg:           #0f0d09;
+  --bg-surface:   #171410;
+  --bg-card:      #1e1912;
+  --bg-card-h:    #241e15;
+
+  --ink:          #e8ddd0;
+  --ink-2:        #a89278;
+  --ink-3:        #6b5e4e;
+  --gold:         #c4a882;
+  --gold-dim:     #8b7355;
+
+  --line:         rgba(232,221,208,0.10);
+  --line-mid:     rgba(232,221,208,0.18);
+  --line-gold:    rgba(196,168,130,0.32);
+
+  --f-display:    'Playfair Display', Georgia, serif;
+  --f-body:       'EB Garamond', Georgia, serif;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+}
+
+/* â”€â”€ Reset â”€â”€ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 
 body {
-  color: #2a1f1f;
-  font-family: 'Playfair Display', serif;
-  margin: 0;
-  padding: 40px;
-
-  /* layered background */
-  background:
-    radial-gradient(circle at top left, rgba(122,46,46,0.08), transparent 40%),
-    radial-gradient(circle at bottom right, rgba(90,40,40,0.08), transparent 40%),
-    linear-gradient(to bottom, #f7f2eb, #efe6dc);
-
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  position: relative;
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ========================= */
-/* PERMANENT FLORALS (SVG — NEVER BREAKS) */
-/* ========================= */
+a { color: inherit; text-decoration: none; }
 
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  width: 260px;
-  height: 260px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.12;
-  background-repeat: no-repeat;
-  background-size: contain;
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   BOOKS PAGE
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-  background-image: url("data:image/svg+xml;utf8,\
-  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'>\
-  <g fill='none' stroke='%237a2e2e' stroke-width='1.2'>\
-  <path d='M10 180 C40 120, 60 60, 100 40'/>\
-  <path d='M60 160 C90 100, 120 60, 160 30'/>\
-  <circle cx='100' cy='40' r='3' fill='%237a2e2e'/>\
-  <circle cx='160' cy='30' r='3' fill='%237a2e2e'/>\
-  </g></svg>");
+/* â”€â”€ Header â”€â”€ */
+.page-header {
+  padding: 2rem 1.25rem 1.25rem;
+  border-bottom: 0.5px solid var(--line);
 }
 
-body::before {
-  top: 0;
-  left: 0;
+.page-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-family: var(--f-body);
+  display: block;
+  margin-bottom: 0.4rem;
 }
 
-body::after {
-  bottom: 0;
-  right: 0;
-  transform: rotate(180deg);
+.page-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  color: var(--ink);
+  line-height: 1.15;
 }
 
-/* bring content above florals */
-#books-container,
-#book-container,
-.entries-section,
-.form-section,
-.title,
+.page-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+/* â”€â”€ Controls â”€â”€ */
 .controls {
-  position: relative;
-  z-index: 1;
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 0.5px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.controls::-webkit-scrollbar { display: none; }
+
+#search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.875rem;
+  border-radius: 100px;
+  border: 0.5px solid var(--line-mid);
+  background: var(--bg-card);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+#search-input::placeholder { color: var(--ink-3); }
+#search-input:focus { border-color: var(--line-gold); }
+
+#yearFilter {
+  padding: 0.5rem 0.75rem;
+  border-radius: 100px;
+  border: 0.5px solid var(--line-mid);
+  background: var(--bg-card);
+  color: var(--ink-2);
+  font-family: var(--f-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 1.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b5e4e' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
 }
 
-/* ========================= */
-/* TITLE */
-/* ========================= */
+/* â”€â”€ Current Pick â”€â”€ */
+.current-pick {
+  margin: 1.25rem;
+  background: var(--bg-card);
+  border: 0.5px solid var(--line-gold);
+  border-radius: var(--r-lg);
+  padding: 1.125rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.current-pick::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top right, rgba(196,168,130,0.06), transparent 65%);
+  pointer-events: none;
+}
+.current-pick:hover { background: var(--bg-card-h); }
 
-.title {
-  text-align: center;
-  margin-bottom: 40px;
-  font-size: 3.4rem;
+.current-pick .pick-badge {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0.5rem;
+}
+.current-pick .pick-badge::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+
+.current-pick .pick-cover {
+  width: 68px;
+  min-width: 68px;
+  height: 100px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  border: 0.5px solid var(--line-mid);
+}
+.current-pick .pick-cover-ph {
+  width: 68px;
+  min-width: 68px;
+  height: 100px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(155deg, #2e2218, #4a3426);
+  border: 0.5px solid var(--line-mid);
+}
+
+.current-pick .pick-info { flex: 1; min-width: 0; }
+.current-pick .pick-title {
+  font-family: var(--f-display);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+}
+.current-pick .pick-author {
+  font-style: italic;
+  color: var(--ink-2);
+  font-size: 0.875rem;
+  margin-bottom: 0.625rem;
+}
+.current-pick .pick-gr {
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  margin-top: 0.3rem;
+  letter-spacing: 0.04em;
+}
+
+/* â”€â”€ Section Label â”€â”€ */
+.section-label {
+  font-family: var(--f-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: block;
+  padding: 1.25rem 1.25rem 0.625rem;
+}
+
+/* â”€â”€ Book List (mobile-default) â”€â”€ */
+.books-list {
+  padding: 0;
+}
+
+.book-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 0.5px solid var(--line);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.book-row:last-child { border-bottom: none; }
+.book-row:hover { background: var(--bg-card); }
+
+.book-row .row-thumb {
+  width: 46px;
+  min-width: 46px;
+  height: 66px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  border: 0.5px solid var(--line);
+}
+.book-row .row-thumb-ph {
+  width: 46px;
+  min-width: 46px;
+  height: 66px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(155deg, #2a2018, #3d2e1e);
+  border: 0.5px solid var(--line);
+}
+
+.book-row .row-info { flex: 1; min-width: 0; }
+.book-row .row-title {
+  font-family: var(--f-display);
+  font-size: 0.95rem;
+  color: var(--ink);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.15rem;
+}
+.book-row .row-author {
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  margin-bottom: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.book-row .row-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.book-row .row-date {
+  font-size: 0.65rem;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+.book-row .row-chevron {
+  color: var(--ink-3);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: color 0.12s;
+  font-family: Georgia, serif;
+}
+.book-row:hover .row-chevron { color: var(--gold); }
+
+/* â”€â”€ Stars â”€â”€ */
+.stars {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--gold);
+  font-size: 0.8rem;
   letter-spacing: 0.5px;
 }
+.stars .s-empty { opacity: 0.25; }
 
-/* ========================= */
-/* CONTROLS */
-/* ========================= */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   BOOK DETAIL PAGE
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 50px;
-}
-
-#search-input,
-#yearFilter {
-  padding: 12px 16px;
-  border-radius: 14px;
-  border: 1px solid #e3d6c9;
-  background: #fffaf4;
-  transition: 0.2s ease;
-}
-
-#search-input:focus,
-#yearFilter:focus {
-  outline: none;
-  border-color: #7a2e2e;
-  box-shadow: 0 0 0 2px rgba(122,46,46,0.1);
-}
-
-/* ========================= */
-/* HOME GRID */
-/* ========================= */
-
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 30px;
-}
-
-/* ========================= */
-/* BOOK CARDS (UPGRADED) */
-/* ========================= */
-
-.book-card {
-  background: linear-gradient(135deg, #fffaf4, #f3e7db);
-  padding: 18px;
-  border-radius: 18px;
-  border: 1px solid #e6d8ca;
-
-  box-shadow:
-    0 10px 25px rgba(60, 40, 30, 0.08),
-    inset 0 1px 0 rgba(255,255,255,0.5);
-
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.25s ease;
-}
-
-.book-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 20px 50px rgba(60, 40, 30, 0.18);
-}
-
-/* accent line */
-.book-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 4px;
-  width: 100%;
-  background: linear-gradient(to right, #7a2e2e, #b06a6a);
-}
-
-/* ========================= */
-/* CARD CONTENT */
-/* ========================= */
-
-.card-content img {
-  width: 85px;
-  height: 125px;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
-.card-content h3 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.card-content p {
-  margin: 4px 0;
-  color: #6a4f4f;
-}
-
-/* ========================= */
-/* BOOK PAGE */
-/* ========================= */
-
-#book-container,
-.entries-section,
-.form-section {
-  max-width: 750px;
-  margin: 0 auto;
-}
-
-/* cover + details aligned */
-.book-detail {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-}
-
-.book-detail img {
-  width: 200px;
-  border-radius: 14px;
-  border: 1px solid #e3d5c7;
-}
-
-.book-info {
-  flex: 1;
-}
-
-/* ========================= */
-/* NAV */
-/* ========================= */
-
+/* â”€â”€ Nav â”€â”€ */
 .book-nav {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #e6d9cc;
-  padding-bottom: 10px;
+  padding: 1rem 1.25rem;
+  border-bottom: 0.5px solid var(--line);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  gap: 0.5rem;
+}
+.book-nav a {
+  color: var(--ink-2);
+  transition: color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+.book-nav a:hover { color: var(--gold); }
+.book-nav .nav-center {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  flex-shrink: 0;
 }
 
-/* ========================= */
-/* ENTRIES (BIG UPGRADE) */
-/* ========================= */
+/* â”€â”€ Book Detail â”€â”€ */
+.book-detail {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 1.5rem 1.25rem;
+  border-bottom: 0.5px solid var(--line);
+}
 
+.book-detail .detail-cover {
+  width: 100px;
+  min-width: 100px;
+  border-radius: var(--r-md);
+  object-fit: cover;
+  border: 0.5px solid var(--line-mid);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.book-detail .detail-cover-ph {
+  width: 100px;
+  min-width: 100px;
+  height: 148px;
+  border-radius: var(--r-md);
+  background: linear-gradient(155deg, #2e2218, #4a3426);
+  border: 0.5px solid var(--line-mid);
+}
+
+.book-detail .detail-info { flex: 1; min-width: 0; }
+
+.detail-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.detail-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.2rem, 4vw, 1.65rem);
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.detail-author {
+  font-style: italic;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+  margin-bottom: 0.875rem;
+}
+
+.detail-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.detail-meta-item {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.detail-meta-item .meta-label {
+  letter-spacing: 0.06em;
+}
+.detail-meta-item .meta-val {
+  color: var(--ink);
+}
+
+/* â”€â”€ Club Rating Block â”€â”€ */
+.club-rating-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.club-rating-block .avg-num {
+  font-family: var(--f-display);
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+/* â”€â”€ Entries Section â”€â”€ */
 .entries-section {
-  background: #f8f3ec;
-  padding: 26px;
-  border-radius: 18px;
-  border: 1px solid #e6d9cc;
+  padding: 1.5rem 1.25rem;
+}
+
+.section-heading {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 0.5px solid var(--line);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.section-heading .count {
+  font-family: var(--f-body);
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  letter-spacing: 0.08em;
 }
 
 .entry {
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-  margin-bottom: 16px;
-  border: 1px solid #eee;
+  background: var(--bg-card);
+  border: 0.5px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.125rem;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.15s;
+}
+.entry:hover { border-color: var(--line-mid); }
 
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-
-  position: relative;
+.entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
 
-/* subtle quote style */
-.entry::before {
-  content: "“";
-  position: absolute;
-  top: 10px;
-  left: 12px;
-  font-size: 28px;
-  color: #d8c2b0;
+.entry-name {
+  font-family: var(--f-display);
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-weight: 400;
 }
 
-/* ========================= */
-/* FORM */
-/* ========================= */
+.entry-note {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin-top: 0.375rem;
+}
+
+.entry-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.04em;
+  border-bottom: 0.5px solid var(--line-gold);
+  padding-bottom: 1px;
+  transition: color 0.15s;
+}
+.entry-link:hover { color: var(--gold); }
+
+.no-entries {
+  color: var(--ink-3);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* â”€â”€ Form Section â”€â”€ */
+.form-section {
+  padding: 1.25rem;
+  border-top: 0.5px solid var(--line);
+  padding-bottom: 3rem;
+}
+
+.form-section .section-heading {
+  margin-bottom: 1.25rem;
+}
 
 #entry-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
-#entry-form input,
+#entry-form select,
 #entry-form textarea,
-#entry-form select {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  background: #fffaf4;
+#entry-form input[type="text"],
+#entry-form input:not([type="submit"]) {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--r-md);
+  border: 0.5px solid var(--line-mid);
+  background: var(--bg-card);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
 }
+#entry-form select { cursor: pointer; }
+#entry-form select:focus,
+#entry-form textarea:focus,
+#entry-form input:focus {
+  border-color: var(--line-gold);
+}
+#entry-form textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.6;
+}
+#entry-form ::placeholder { color: var(--ink-3); }
 
-#entry-form button {
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
-  background: #7a2e2e;
-  color: white;
+#entry-form button[type="submit"] {
+  width: 100%;
+  padding: 0.875rem;
+  border: 0.5px solid var(--gold-dim);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--gold);
+  font-family: var(--f-body);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(122,46,46,0.25);
+  transition: background 0.15s, color 0.15s;
+  margin-top: 0.25rem;
+}
+#entry-form button[type="submit"]:hover {
+  background: var(--gold-dim);
+  color: var(--bg);
 }
 
-#entry-form button:hover {
-  background: #5f2323;
+.form-success {
+  text-align: center;
+  padding: 1rem;
+  color: var(--gold);
+  font-style: italic;
+  font-size: 0.9rem;
+  animation: fadeIn 0.3s ease;
 }
 
-/* ========================= */
-/* RATINGS */
-/* ========================= */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-.club-rating {
-  letter-spacing: 2px;
-  color: #7a2e2e;
-  font-weight: 600;
+/* â”€â”€ Tablet / Desktop refinements â”€â”€ */
+@media (min-width: 640px) {
+  .page-header { padding: 2.5rem 2rem 1.5rem; }
+  .controls { padding: 1rem 2rem; }
+  .current-pick { margin: 1.5rem 2rem; }
+  .section-label { padding: 1.5rem 2rem 0.75rem; }
+  .book-row { padding: 1rem 2rem; }
+  .book-detail { padding: 2rem; gap: 2rem; }
+  .book-detail .detail-cover { width: 140px; min-width: 140px; }
+  .detail-title { font-size: 1.75rem; }
+  .entries-section { padding: 2rem; }
+  .form-section { padding: 2rem; padding-bottom: 4rem; }
+  .book-nav { padding: 1rem 2rem; }
+  .book-nav a { max-width: 180px; }
 }
 
-.goodreads-rating {
-  color: #6a4f4f;
+@media (min-width: 900px) {
+  body { max-width: 760px; margin-left: auto; margin-right: auto; }
 }

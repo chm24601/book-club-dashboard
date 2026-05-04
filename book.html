@@ -3,79 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Book Details</title>
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <!-- ✅ NAVIGATION (THIS FIXES YOUR ISSUE) -->
-  <div id="book-nav" class="book-nav"></div>
+  <nav id="book-nav" class="book-nav"></nav>
 
-  <!-- BOOK INFO -->
   <div id="book-container"></div>
 
-  <!-- ENTRIES -->
-  <div class="entries-section">
-    <h2>Book Club Thoughts</h2>
+  <section class="entries-section">
+    <h2 class="section-heading">
+      Book Club Thoughts
+      <span class="count" id="entry-count"></span>
+    </h2>
     <div id="entries-container"></div>
-  </div>
+  </section>
 
-  <!-- FORM -->
-  <div class="form-section">
-    <h2>Add Your Thoughts</h2>
+  <section class="form-section">
+    <h2 class="section-heading">Add Your Thoughts</h2>
 
     <form id="entry-form">
-
-      <!-- NAME DROPDOWN -->
       <select id="name" required>
-        <option value="">Select your name</option>
+        <option value="">Your name…</option>
         <option value="Courtney">Courtney</option>
         <option value="Emily">Emily</option>
         <option value="Alyssa">Alyssa</option>
         <option value="Sam">Sam</option>
       </select>
 
-      <!-- RATING DROPDOWN -->
       <select id="rating" required>
-        <option value="">Select rating</option>
-        <option value="1">1</option>
-        <option value="1.5">1.5</option>
-        <option value="2">2</option>
-        <option value="2.5">2.5</option>
-        <option value="3">3</option>
-        <option value="3.5">3.5</option>
-        <option value="4">4</option>
-        <option value="4.5">4.5</option>
-        <option value="5">5</option>
+        <option value="">Rating…</option>
+        <option value="1">1 star</option>
+        <option value="1.5">1.5 stars</option>
+        <option value="2">2 stars</option>
+        <option value="2.5">2.5 stars</option>
+        <option value="3">3 stars</option>
+        <option value="3.5">3.5 stars</option>
+        <option value="4">4 stars</option>
+        <option value="4.5">4.5 stars</option>
+        <option value="5">5 stars</option>
       </select>
 
-      <!-- NOTE -->
-      <textarea 
-        id="note" 
-        placeholder="Your thoughts..."
-      ></textarea>
+      <textarea id="note" placeholder="Your thoughts on the book…"></textarea>
 
-      <!-- LINK -->
-      <input 
-        id="link" 
-        placeholder="Optional link"
-      />
+      <input type="text" id="link" placeholder="Optional link (article, review…)" />
 
-      <!-- SUBMIT -->
       <button type="submit">Submit</button>
-
     </form>
-  </div>
+  </section>
 
-  <!-- SCRIPT -->
   <script src="book.js"></script>
-
 </body>
 </html>
