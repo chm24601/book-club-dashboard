@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stats — Book Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .stats-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 0.5px solid rgba(58,58,40,0.15);
+    }
+    .stats-nav a {
+      font-family: var(--f-body);
+      font-size: 0.8rem;
+      color: var(--ink-2);
+      letter-spacing: 0.04em;
+      transition: color 0.15s;
+    }
+    .stats-nav a:hover { color: #BB858B; }
+    .stats-nav .nav-center {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .stats-header {
+      padding: 2.5rem 1.25rem 1.75rem;
+      border-bottom: 0.5px solid rgba(58,58,40,0.15);
+    }
+    .stats-header .page-eyebrow { margin-bottom: 0.6rem; }
+    .stats-header .page-title { margin-bottom: 1rem; }
+
+    .stats-wrap {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Metric cards row ── */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 1rem 1.125rem;
+      box-shadow: 0 2px 8px rgba(58,58,40,0.07);
+    }
+    .metric-label {
+      font-family: var(--f-body);
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .metric-value {
+      font-family: var(--f-display);
+      font-size: 2rem;
+      color: var(--ink);
+      line-height: 1;
+      display: block;
+    }
+    .metric-sub {
+      font-family: var(--f-body);
+      font-size: 0.75rem;
+      color: var(--ink-3);
+      font-style: italic;
+      margin-top: 0.2rem;
+      display: block;
+    }
+
+    /* ── Section panels ── */
+    .stat-panel {
+      background: var(--bg-card);
+      border: 0.5px solid var(--line);
+      border-radius: var(--r-xl);
+      padding: 1.25rem;
+      box-shadow: 0 2px 10px rgba(58,58,40,0.07);
+    }
+
+    .stat-panel-title {
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: 1rem;
+      color: var(--ink);
+      margin-bottom: 1rem;
+      padding-bottom: 0.625rem;
+      border-bottom: 0.5px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Member rows ── */
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      padding: 0.625rem 0;
+      border-bottom: 0.5px solid var(--line);
+    }
+    .member-row:last-child { border-bottom: none; }
+
+    .member-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #BB858B;
+      color: #EFEBCE;
+      font-family: var(--f-display);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .member-avatar.av-2 { background: #6b2737; }
+    .member-avatar.av-3 { background: #8a8a6a; }
+    .member-avatar.av-4 { background: #D8A48F; color: var(--ink); }
+
+    .member-info { flex: 1; min-width: 0; }
+    .member-name {
+      font-family: var(--f-display);
+      font-size: 0.95rem;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+    .member-sub {
+      font-size: 0.75rem;
+      color: var(--ink-3);
+      font-style: italic;
+    }
+    .member-rating {
+      font-family: var(--f-display);
+      font-size: 1.1rem;
+      color: #BB858B;
+      flex-shrink: 0;
+    }
+
+    /* ── Bar chart ── */
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 0.5px solid var(--line);
+    }
+    .bar-row:last-child { border-bottom: none; }
+    .bar-label {
+      font-family: var(--f-display);
+      font-size: 0.85rem;
+      color: var(--ink);
+      width: 80px;
+      min-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(58,58,40,0.10);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: #BB858B;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .bar-val {
+      font-family: var(--f-display);
+      font-size: 0.85rem;
+      color: var(--ink-2);
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Book highlight cards ── */
+    .book-highlight {
+      display: flex;
+      gap: 0.875rem;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 0.5px solid var(--line);
+    }
+    .book-highlight:last-child { border-bottom: none; }
+    .book-highlight img,
+    .book-highlight .bh-ph {
+      width: 40px;
+      min-width: 40px;
+      height: 58px;
+      border-radius: var(--r-sm);
+      object-fit: cover;
+      border: 0.5px solid var(--line);
+    }
+    .book-highlight .bh-ph {
+      background: linear-gradient(155deg, #D8A48F, #c4907a);
+    }
+    .book-highlight .bh-info { flex: 1; min-width: 0; }
+    .book-highlight .bh-title {
+      font-family: var(--f-display);
+      font-size: 0.9rem;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+    .book-highlight .bh-author {
+      font-size: 0.75rem;
+      color: var(--ink-3);
+      font-style: italic;
+      display: block;
+    }
+    .book-highlight .bh-rating {
+      font-family: var(--f-display);
+      font-size: 1rem;
+      color: #BB858B;
+      flex-shrink: 0;
+    }
+
+    .highlight-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      display: block;
+      margin-bottom: 0.625rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem 1.25rem;
+      color: var(--ink-3);
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    @media (min-width: 640px) {
+      .stats-header { padding: 3rem 2rem 2rem; }
+      .stats-nav { padding: 1rem 2rem; }
+      .stats-wrap { padding: 1.5rem 2rem; gap: 1.25rem; }
+      .metric-row { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="stats-nav">
+    <a href="books.html">← All books</a>
+    <span class="nav-center">Club stats</span>
+    <span></span>
+  </nav>
+
+  <header class="stats-header">
+    <span class="page-eyebrow">by the numbers</span>
+    <h1 class="page-title">Club <em>Stats</em></h1>
+    <div class="page-title-rule"><span>all time</span></div>
+  </header>
+
+  <div id="stats-wrap" class="stats-wrap">
+    <p class="loading">Loading stats…</p>
+  </div>
+
+  <script>
+    function normalize(str) { return str?.toLowerCase().trim() || ""; }
+
+    function starsHTML(rating) {
+      if (!rating) return "";
+      const full = Math.floor(rating);
+      const half = rating % 1 >= 0.5;
+      const empty = 5 - full - (half ? 1 : 0);
+      let html = `<span class="stars" style="font-size:0.85rem">`;
+      html += "★".repeat(full);
+      if (half) html += `<span style="font-size:0.6em;vertical-align:middle;">½</span>`;
+      html += `<span style="opacity:0.25">${"★".repeat(empty)}</span>`;
+      html += "</span>";
+      return html;
+    }
+
+    const MEMBERS = ["Courtney", "Emily", "Alyssa", "Sam"];
+    const AVATAR_CLASSES = ["", "av-2", "av-3", "av-4"];
+
+    async function loadStats() {
+      const wrap = document.getElementById("stats-wrap");
+
+      try {
+        const [booksRes, entriesRes] = await Promise.all([
+          fetch('/api/books'),
+          fetch('/api/entries')
+        ]);
+        const booksData = await booksRes.json();
+        const entriesData = await entriesRes.json();
+
+        const books = booksData.records.map(r => r.fields);
+        const entries = entriesData.records.map(r => r.fields);
+
+        // ── Attach entries to books ──
+        const booksWithEntries = books.map(book => {
+          const bookEntries = entries.filter(e =>
+            e?.BookSlug && (
+              normalize(e.BookSlug) === normalize(book?.Slug || "") ||
+              normalize(e.BookSlug) === normalize(book?.Title || "")
+            )
+          );
+          const ratings = bookEntries.map(e => Number(e.Rating)).filter(r => !isNaN(r) && r > 0);
+          const avg = ratings.length > 0
+            ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
+            : null;
+          return { ...book, entries: bookEntries, avgRating: avg, ratings };
+        });
+
+        const ratedBooks = booksWithEntries.filter(b => b.avgRating !== null);
+        const totalReviews = entries.filter(e => Number(e.Rating) > 0).length;
+
+        // ── Overall avg ──
+        const allRatings = entries.map(e => Number(e.Rating)).filter(r => !isNaN(r) && r > 0);
+        const overallAvg = allRatings.length > 0
+          ? Math.round((allRatings.reduce((a, b) => a + b, 0) / allRatings.length) * 10) / 10
+          : null;
+
+        // ── Highest rated ──
+        const highest = [...ratedBooks].sort((a, b) => b.avgRating - a.avgRating)[0];
+        const lowest = [...ratedBooks].sort((a, b) => a.avgRating - b.avgRating)[0];
+
+        // ── Most divisive (biggest std deviation) ──
+        const divisive = [...ratedBooks]
+          .filter(b => b.ratings.length >= 2)
+          .map(b => {
+            const mean = b.avgRating;
+            const variance = b.ratings.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / b.ratings.length;
+            return { ...b, spread: Math.round(Math.sqrt(variance) * 10) / 10 };
+          })
+          .sort((a, b) => b.spread - a.spread)[0];
+
+        // ── Per member stats ──
+        const memberStats = MEMBERS.map(name => {
+          const memberEntries = entries.filter(e =>
+            normalize(e.MemberName) === normalize(name) &&
+            Number(e.Rating) > 0
+          );
+          const memberRatings = memberEntries.map(e => Number(e.Rating));
+          const avg = memberRatings.length > 0
+            ? Math.round((memberRatings.reduce((a, b) => a + b, 0) / memberRatings.length) * 10) / 10
+            : null;
+          return { name, avg, count: memberRatings.length };
+        }).filter(m => m.count > 0).sort((a, b) => b.avg - a.avg);
+
+        const maxAvg = Math.max(...memberStats.map(m => m.avg));
+
+        // ── Render ──
+        wrap.innerHTML = `
+          <!-- Metric cards -->
+          <div class="metric-row">
+            <div class="metric-card">
+              <span class="metric-label">Books read</span>
+              <span class="metric-value">${books.length}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Reviews</span>
+              <span class="metric-value">${totalReviews}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Club avg</span>
+              <span class="metric-value">${overallAvg || "—"}</span>
+              <span class="metric-sub">out of 5</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Members</span>
+              <span class="metric-value">${MEMBERS.length}</span>
+            </div>
+          </div>
+
+          <!-- Member ratings -->
+          <div class="stat-panel">
+            <div class="stat-panel-title">Member ratings</div>
+            ${memberStats.map((m, i) => `
+              <div class="member-row">
+                <div class="member-avatar ${AVATAR_CLASSES[MEMBERS.indexOf(m.name)]}">${m.name[0]}</div>
+                <div class="member-info">
+                  <span class="member-name">${m.name}</span>
+                  <span class="member-sub">${m.count} review${m.count !== 1 ? "s" : ""}</span>
+                </div>
+                <span class="member-rating">${m.avg} ★</span>
+              </div>
+            `).join("")}
+          </div>
+
+          <!-- Rating bars per member -->
+          <div class="stat-panel">
+            <div class="stat-panel-title">Average rating</div>
+            ${memberStats.map(m => `
+              <div class="bar-row">
+                <span class="bar-label">${m.name}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: ${(m.avg / 5) * 100}%"></div>
+                </div>
+                <span class="bar-val">${m.avg}</span>
+              </div>
+            `).join("")}
+          </div>
+
+          <!-- Highlights -->
+          <div class="stat-panel">
+            <div class="stat-panel-title">Book highlights</div>
+
+            ${highest ? `
+              <span class="highlight-tag">Highest rated</span>
+              <div class="book-highlight">
+                ${highest.BookCover
+                  ? `<img src="${highest.BookCover}" alt="${highest.Title}" />`
+                  : `<div class="bh-ph"></div>`}
+                <div class="bh-info">
+                  <span class="bh-title">${highest.Title}</span>
+                  <span class="bh-author">${highest.Author}</span>
+                  ${starsHTML(highest.avgRating)}
+                </div>
+                <span class="bh-rating">${highest.avgRating}</span>
+              </div>
+            ` : ""}
+
+            ${lowest && lowest.Title !== highest?.Title ? `
+              <span class="highlight-tag" style="margin-top:0.875rem;display:block">Lowest rated</span>
+              <div class="book-highlight">
+                ${lowest.BookCover
+                  ? `<img src="${lowest.BookCover}" alt="${lowest.Title}" />`
+                  : `<div class="bh-ph"></div>`}
+                <div class="bh-info">
+                  <span class="bh-title">${lowest.Title}</span>
+                  <span class="bh-author">${lowest.Author}</span>
+                  ${starsHTML(lowest.avgRating)}
+                </div>
+                <span class="bh-rating">${lowest.avgRating}</span>
+              </div>
+            ` : ""}
+
+            ${divisive ? `
+              <span class="highlight-tag" style="margin-top:0.875rem;display:block">Most divisive</span>
+              <div class="book-highlight">
+                ${divisive.BookCover
+                  ? `<img src="${divisive.BookCover}" alt="${divisive.Title}" />`
+                  : `<div class="bh-ph"></div>`}
+                <div class="bh-info">
+                  <span class="bh-title">${divisive.Title}</span>
+                  <span class="bh-author">${divisive.Author}</span>
+                  <span style="font-size:0.75rem;color:var(--ink-3);font-style:italic;">±${divisive.spread} spread</span>
+                </div>
+                <span class="bh-rating">${divisive.avgRating}</span>
+              </div>
+            ` : ""}
+          </div>
+        `;
+
+      } catch (err) {
+        console.error(err);
+        wrap.innerHTML = `<p class="loading">Couldn't load stats. Try refreshing.</p>`;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadStats);
+  </script>
+</body>
+</html>
