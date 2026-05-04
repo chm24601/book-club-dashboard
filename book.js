@@ -246,8 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.disabled = true;
 
     const payload = {
-      slug,
-      name: document.getElementById("name").value,
+      bookSlug: slug,
+      memberName: document.getElementById("name").value,
       rating,
       note: document.getElementById("note").value,
       link: document.getElementById("link").value,
