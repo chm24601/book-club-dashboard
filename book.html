@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Book Details</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -34,18 +34,18 @@
         <option value="Sam">Sam</option>
       </select>
 
-      <select id="rating" required>
-        <option value="">Rating…</option>
-        <option value="1">1 star</option>
-        <option value="1.5">1.5 stars</option>
-        <option value="2">2 stars</option>
-        <option value="2.5">2.5 stars</option>
-        <option value="3">3 stars</option>
-        <option value="3.5">3.5 stars</option>
-        <option value="4">4 stars</option>
-        <option value="4.5">4.5 stars</option>
-        <option value="5">5 stars</option>
-      </select>
+      <div class="star-rating-input">
+        <span class="star-label">Your rating…</span>
+        <div class="star-picker" id="star-picker">
+          <span class="star-pick" data-value="1">★</span>
+          <span class="star-pick" data-value="2">★</span>
+          <span class="star-pick" data-value="3">★</span>
+          <span class="star-pick" data-value="4">★</span>
+          <span class="star-pick" data-value="5">★</span>
+        </div>
+        <span class="star-value-label" id="star-value-label"></span>
+        <input type="hidden" id="rating" required />
+      </div>
 
       <textarea id="note" placeholder="Your thoughts on the book…"></textarea>
 
