@@ -12,7 +12,7 @@
   --bg-hero:      #BB858B;
   --bg-hero-h:    #c99099;
 
-  --ink:          #3a3a28;
+  --ink:         --ink: #1e1e10;
   --ink-2:        #6b6040;
   --ink-3:        #8a8a6a;
   --gold:         #BB858B;
@@ -89,13 +89,9 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 0.6rem;
 }
 
-.page-title {
-  font-family: var(--f-display);
-  font-weight: 400;
-  font-size: clamp(1.9rem, 6vw, 2.8rem);
-  color: var(--ink);
-  line-height: 1.1;
-  margin-bottom: 1rem;
+.page-title em {
+  font-style: italic;
+  color: #6b2737;
 }
 
 .page-title em {
