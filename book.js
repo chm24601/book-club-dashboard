@@ -30,66 +30,6 @@ function coverImg(book, cls, phCls, phH) {
     : `<div class="${phCls}" style="height:${phH}"></div>`;
 }
 
-// ── Star Picker ──
-function initStarPicker() {
-  const picker = document.getElementById("star-picker");
-  const input = document.getElementById("rating");
-  const label = document.getElementById("star-value-label");
-  if (!picker) return;
-
-  const stars = picker.querySelectorAll(".star-pick");
-  let currentRating = 0;
-
-  const labels = {
-    0.5: "½", 1: "1", 1.5: "1½", 2: "2", 2.5: "2½",
-    3: "3", 3.5: "3½", 4: "4", 4.5: "4½", 5: "5"
-  };
-
-  function getRatingFromEvent(e, star) {
-    const rect = star.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const isHalf = x < rect.width / 2;
-    const val = parseInt(star.dataset.value);
-    return isHalf ? val - 0.5 : val;
-  }
-
-  function paintStars(rating) {
-    stars.forEach(star => {
-      const val = parseInt(star.dataset.value);
-      star.classList.remove("full", "half", "hovered");
-      if (rating >= val) {
-        star.classList.add("full");
-      } else if (rating >= val - 0.5) {
-        star.classList.add("half");
-      }
-    });
-  }
-
-  picker.addEventListener("mousemove", e => {
-    const star = e.target.closest(".star-pick");
-    if (!star) return;
-    const rating = getRatingFromEvent(e, star);
-    paintStars(rating);
-    label.textContent = labels[rating] || "";
-    star.classList.add("hovered");
-  });
-
-  picker.addEventListener("mouseleave", () => {
-    paintStars(currentRating);
-    label.textContent = currentRating ? labels[currentRating] : "";
-  });
-
-  picker.addEventListener("click", e => {
-    const star = e.target.closest(".star-pick");
-    if (!star) return;
-    const rating = getRatingFromEvent(e, star);
-    currentRating = rating;
-    input.value = rating;
-    paintStars(rating);
-    label.textContent = labels[rating] || "";
-  });
-}
-
 async function loadBook() {
   const slug = getSlugFromURL();
 
@@ -104,6 +44,7 @@ async function loadBook() {
     let books = booksData.records.map(r => r.fields);
     const entries = entriesData.records.map(r => r.fields);
 
+    // Sort newest first (for prev/next nav)
     books.sort((a, b) =>
       new Date(b["Date Read"] || 0) - new Date(a["Date Read"] || 0)
     );
@@ -120,6 +61,7 @@ async function loadBook() {
       return;
     }
 
+    // Match entries
     const bookEntries = entries.filter(e => {
       if (!e.BookSlug) return false;
       const es = normalize(e.BookSlug);
@@ -130,6 +72,7 @@ async function loadBook() {
       );
     });
 
+    // Average rating
     const ratings = bookEntries.map(e => Number(e.Rating)).filter(r => !isNaN(r));
     const avg = ratings.length > 0
       ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
@@ -138,7 +81,6 @@ async function loadBook() {
     renderNav(books, bookIndex);
     renderBook(book, avg);
     renderEntries(bookEntries);
-    initStarPicker();
 
   } catch (err) {
     console.error("Error loading book:", err);
@@ -146,23 +88,35 @@ async function loadBook() {
 }
 
 function renderNav(books, bookIndex) {
-  const prev = books[bookIndex + 1];
-  const next = books[bookIndex - 1];
+  const prev = books[bookIndex + 1]; // older
+  const next = books[bookIndex - 1]; // newer
   const nav = document.getElementById("book-nav");
   if (!nav) return;
 
+  const prevLink = prev
+    ? `<a href="book.html?slug=${prev.Slug || encodeURIComponent(prev.Title)}" class="nav-prev">
+         <span class="nav-arrow">←</span>
+         <span class="nav-title">${prev.Title}</span>
+       </a>`
+    : `<span></span>`;
+
+  const nextLink = next
+    ? `<a href="book.html?slug=${next.Slug || encodeURIComponent(next.Title)}" class="nav-next" style="text-align:right">
+         <span class="nav-title">${next.Title}</span>
+         <span class="nav-arrow">→</span>
+       </a>`
+    : `<span></span>`;
+
   nav.innerHTML = `
-    ${prev ? `<a href="book.html?slug=${prev.Slug || encodeURIComponent(prev.Title)}">← ${prev.Title}</a>` : `<span></span>`}
+    ${prevLink}
     <a href="books.html" class="nav-center">All books</a>
-    ${next ? `<a href="book.html?slug=${next.Slug || encodeURIComponent(next.Title)}" style="text-align:right">${next.Title} →</a>` : `<span></span>`}
+    ${nextLink}
   `;
 }
 
 function renderBook(book, avg) {
   const container = document.getElementById("book-container");
   if (!container) return;
-
-  document.title = `${book.Title} — Book Club`;
 
   container.innerHTML = `
     <div class="book-detail">
@@ -171,17 +125,20 @@ function renderBook(book, avg) {
         <span class="detail-tag">book details</span>
         <h1 class="detail-title">${book.Title}</h1>
         <p class="detail-author">${book.Author}</p>
+
         <div class="detail-meta-row">
           ${book["Date Read"] ? `
             <div class="detail-meta-item">
               <span class="meta-label">Read</span>
               <span class="meta-val">${formatDate(book["Date Read"])}</span>
             </div>` : ""}
+
           ${book["GoodreadsRating"] ? `
             <div class="detail-meta-item">
               <span class="meta-label">Goodreads</span>
               <span class="meta-val">${book["GoodreadsRating"]}</span>
             </div>` : ""}
+
           ${avg ? `
             <div class="detail-meta-item">
               <span class="meta-label">Club avg</span>
@@ -225,6 +182,7 @@ function renderEntries(entries) {
   }).join("");
 }
 
+// Form submission
 document.addEventListener("DOMContentLoaded", () => {
   loadBook();
 
@@ -234,21 +192,15 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async e => {
     e.preventDefault();
 
-    const rating = document.getElementById("rating").value;
-    if (!rating) {
-      alert("Please select a star rating!");
-      return;
-    }
-
     const slug = getSlugFromURL();
     const btn = form.querySelector("button[type='submit']");
     btn.textContent = "Submitting…";
     btn.disabled = true;
 
     const payload = {
-      bookSlug: slug,
-      memberName: document.getElementById("name").value,
-      rating,
+      slug,
+      name: document.getElementById("name").value,
+      rating: document.getElementById("rating").value,
       note: document.getElementById("note").value,
       link: document.getElementById("link").value,
     };
@@ -262,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (res.ok) {
         form.innerHTML = `<p class="form-success">Thank you — your thoughts have been saved.</p>`;
+        // Reload entries after a beat
         setTimeout(loadBook, 800);
       } else {
         btn.textContent = "Submit";
