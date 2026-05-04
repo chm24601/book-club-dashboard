@@ -354,20 +354,22 @@
           })
           .sort((a, b) => b.spread - a.spread)[0];
 
-        // ── Per member stats ──
-        const memberStats = MEMBERS.map(name => {
-          const memberEntries = entries.filter(e =>
-            normalize(e.MemberName) === normalize(name) &&
-            Number(e.Rating) > 0
-          );
-          const memberRatings = memberEntries.map(e => Number(e.Rating));
-          const avg = memberRatings.length > 0
-            ? Math.round((memberRatings.reduce((a, b) => a + b, 0) / memberRatings.length) * 10) / 10
-            : null;
-          return { name, avg, count: memberRatings.length };
-        }).filter(m => m.count > 0).sort((a, b) => b.avg - a.avg);
+        // ── Goodreads vs Club comparison ──
+        const grComparison = ratedBooks
+          .filter(b => b["GoodreadsRating"] && !isNaN(Number(b["GoodreadsRating"])))
+          .map(b => ({
+            title: b.Title,
+            author: b.Author,
+            cover: b.BookCover,
+            gr: Number(b["GoodreadsRating"]),
+            club: b.avgRating,
+            diff: Math.round((b.avgRating - Number(b["GoodreadsRating"])) * 10) / 10
+          }))
+          .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
 
-        const maxAvg = Math.max(...memberStats.map(m => m.avg));
+        const grAvg = grComparison.length > 0
+          ? Math.round((grComparison.reduce((s, b) => s + b.gr, 0) / grComparison.length) * 10) / 10
+          : null;
 
         // ── Render ──
         wrap.innerHTML = `
@@ -387,38 +389,54 @@
               <span class="metric-sub">out of 5</span>
             </div>
             <div class="metric-card">
-              <span class="metric-label">Members</span>
-              <span class="metric-value">${MEMBERS.length}</span>
+              <span class="metric-label">Goodreads avg</span>
+              <span class="metric-value">${grAvg || "—"}</span>
+              <span class="metric-sub">out of 5</span>
             </div>
           </div>
 
-          <!-- Member ratings -->
+          <!-- Goodreads vs Club -->
           <div class="stat-panel">
-            <div class="stat-panel-title">Member ratings</div>
-            ${memberStats.map((m, i) => `
-              <div class="member-row">
-                <div class="member-avatar ${AVATAR_CLASSES[MEMBERS.indexOf(m.name)]}">${m.name[0]}</div>
-                <div class="member-info">
-                  <span class="member-name">${m.name}</span>
-                  <span class="member-sub">${m.count} review${m.count !== 1 ? "s" : ""}</span>
+            <div class="stat-panel-title">
+              Us vs Goodreads
+              <span style="font-family:var(--f-body);font-size:0.7rem;color:var(--ink-3);font-weight:400;">biggest differences</span>
+            </div>
+            ${grComparison.slice(0, 6).map(b => `
+              <div class="bar-row" style="align-items:flex-start;padding:0.75rem 0;gap:0.875rem;">
+                ${b.cover
+                  ? `<img src="${b.cover}" style="width:36px;min-width:36px;height:52px;border-radius:4px;object-fit:cover;border:0.5px solid var(--line);" />`
+                  : `<div style="width:36px;min-width:36px;height:52px;border-radius:4px;background:linear-gradient(155deg,#D8A48F,#c4907a);border:0.5px solid var(--line);"></div>`}
+                <div style="flex:1;min-width:0;">
+                  <div style="font-family:var(--f-display);font-size:0.875rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:0.3rem;">${b.title}</div>
+                  <div style="display:flex;gap:1rem;align-items:center;">
+                    <span style="font-size:0.75rem;color:var(--ink-3);">Club <strong style="color:var(--ink);font-family:var(--f-display);">${b.club}</strong></span>
+                    <span style="font-size:0.75rem;color:var(--ink-3);">GR <strong style="color:var(--ink);font-family:var(--f-display);">${b.gr}</strong></span>
+                    <span style="font-size:0.75rem;font-style:italic;color:${b.diff > 0 ? '#6b2737' : '#8a8a6a'};">
+                      ${b.diff > 0 ? '▲' : '▼'} ${Math.abs(b.diff)} ${b.diff > 0 ? 'above' : 'below'} GR
+                    </span>
+                  </div>
                 </div>
-                <span class="member-rating">${m.avg} ★</span>
               </div>
             `).join("")}
           </div>
 
-          <!-- Rating bars per member -->
+          <!-- Rating bars -->
           <div class="stat-panel">
-            <div class="stat-panel-title">Average rating</div>
-            ${memberStats.map(m => `
-              <div class="bar-row">
-                <span class="bar-label">${m.name}</span>
-                <div class="bar-track">
-                  <div class="bar-fill" style="width: ${(m.avg / 5) * 100}%"></div>
-                </div>
-                <span class="bar-val">${m.avg}</span>
+            <div class="stat-panel-title">Club vs Goodreads avg</div>
+            <div class="bar-row">
+              <span class="bar-label">Club avg</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${((overallAvg || 0) / 5) * 100}%;background:#BB858B;"></div>
               </div>
-            `).join("")}
+              <span class="bar-val">${overallAvg || "—"}</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Goodreads</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${((grAvg || 0) / 5) * 100}%;background:#6b2737;"></div>
+              </div>
+              <span class="bar-val">${grAvg || "—"}</span>
+            </div>
           </div>
 
           <!-- Highlights -->
@@ -426,11 +444,9 @@
             <div class="stat-panel-title">Book highlights</div>
 
             ${highest ? `
-              <span class="highlight-tag">Highest rated</span>
+              <span class="highlight-tag">Highest rated by club</span>
               <div class="book-highlight">
-                ${highest.BookCover
-                  ? `<img src="${highest.BookCover}" alt="${highest.Title}" />`
-                  : `<div class="bh-ph"></div>`}
+                ${highest.BookCover ? `<img src="${highest.BookCover}" alt="${highest.Title}" />` : `<div class="bh-ph"></div>`}
                 <div class="bh-info">
                   <span class="bh-title">${highest.Title}</span>
                   <span class="bh-author">${highest.Author}</span>
@@ -441,11 +457,9 @@
             ` : ""}
 
             ${lowest && lowest.Title !== highest?.Title ? `
-              <span class="highlight-tag" style="margin-top:0.875rem;display:block">Lowest rated</span>
+              <span class="highlight-tag" style="margin-top:0.875rem;display:block">Lowest rated by club</span>
               <div class="book-highlight">
-                ${lowest.BookCover
-                  ? `<img src="${lowest.BookCover}" alt="${lowest.Title}" />`
-                  : `<div class="bh-ph"></div>`}
+                ${lowest.BookCover ? `<img src="${lowest.BookCover}" alt="${lowest.Title}" />` : `<div class="bh-ph"></div>`}
                 <div class="bh-info">
                   <span class="bh-title">${lowest.Title}</span>
                   <span class="bh-author">${lowest.Author}</span>
@@ -458,9 +472,7 @@
             ${divisive ? `
               <span class="highlight-tag" style="margin-top:0.875rem;display:block">Most divisive</span>
               <div class="book-highlight">
-                ${divisive.BookCover
-                  ? `<img src="${divisive.BookCover}" alt="${divisive.Title}" />`
-                  : `<div class="bh-ph"></div>`}
+                ${divisive.BookCover ? `<img src="${divisive.BookCover}" alt="${divisive.Title}" />` : `<div class="bh-ph"></div>`}
                 <div class="bh-info">
                   <span class="bh-title">${divisive.Title}</span>
                   <span class="bh-author">${divisive.Author}</span>
