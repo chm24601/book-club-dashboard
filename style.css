@@ -1,12 +1,11 @@
-
 /* ============================================================
-   BOOK CLUB â€” Dark Academia Editorial
-   Mobile-first Â· Playfair Display + EB Garamond
+   BOOK CLUB — Dark Academia Editorial
+   Mobile-first · Playfair Display + EB Garamond
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
 
-/* â”€â”€ Tokens â”€â”€ */
+/* ── Tokens ── */
 :root {
   --bg:           #0f0d09;
   --bg-surface:   #171410;
@@ -32,7 +31,7 @@
   --r-xl: 20px;
 }
 
-/* â”€â”€ Reset â”€â”€ */
+/* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 
@@ -47,11 +46,11 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ════════════════════════════════
    BOOKS PAGE
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ════════════════════════════════ */
 
-/* â”€â”€ Header â”€â”€ */
+/* ── Header ── */
 .page-header {
   padding: 2rem 1.25rem 1.25rem;
   border-bottom: 0.5px solid var(--line);
@@ -80,7 +79,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--gold);
 }
 
-/* â”€â”€ Controls â”€â”€ */
+/* ── Controls ── */
 .controls {
   display: flex;
   gap: 0.625rem;
@@ -128,7 +127,7 @@ a { color: inherit; text-decoration: none; }
   background-position: right 0.5rem center;
 }
 
-/* â”€â”€ Current Pick â”€â”€ */
+/* ── Current Pick ── */
 .current-pick {
   margin: 1.25rem;
   background: var(--bg-card);
@@ -208,7 +207,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.04em;
 }
 
-/* â”€â”€ Section Label â”€â”€ */
+/* ── Section Label ── */
 .section-label {
   font-family: var(--f-body);
   font-size: 0.6rem;
@@ -219,7 +218,7 @@ a { color: inherit; text-decoration: none; }
   padding: 1.25rem 1.25rem 0.625rem;
 }
 
-/* â”€â”€ Book List (mobile-default) â”€â”€ */
+/* ── Book List (mobile-default) ── */
 .books-list {
   padding: 0;
 }
@@ -292,7 +291,7 @@ a { color: inherit; text-decoration: none; }
 }
 .book-row:hover .row-chevron { color: var(--gold); }
 
-/* â”€â”€ Stars â”€â”€ */
+/* ── Stars ── */
 .stars {
   display: inline-flex;
   gap: 1px;
@@ -302,11 +301,11 @@ a { color: inherit; text-decoration: none; }
 }
 .stars .s-empty { opacity: 0.25; }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ════════════════════════════════
    BOOK DETAIL PAGE
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ════════════════════════════════ */
 
-/* â”€â”€ Nav â”€â”€ */
+/* ── Nav ── */
 .book-nav {
   display: flex;
   align-items: center;
@@ -334,7 +333,7 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0;
 }
 
-/* â”€â”€ Book Detail â”€â”€ */
+/* ── Book Detail ── */
 .book-detail {
   display: flex;
   gap: 1.25rem;
@@ -407,7 +406,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink);
 }
 
-/* â”€â”€ Club Rating Block â”€â”€ */
+/* ── Club Rating Block ── */
 .club-rating-block {
   display: flex;
   align-items: center;
@@ -419,7 +418,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--gold);
 }
 
-/* â”€â”€ Entries Section â”€â”€ */
+/* ── Entries Section ── */
 .entries-section {
   padding: 1.5rem 1.25rem;
 }
@@ -495,7 +494,7 @@ a { color: inherit; text-decoration: none; }
   padding: 2rem 0;
 }
 
-/* â”€â”€ Form Section â”€â”€ */
+/* ── Form Section ── */
 .form-section {
   padding: 1.25rem;
   border-top: 0.5px solid var(--line);
@@ -573,7 +572,7 @@ a { color: inherit; text-decoration: none; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* â”€â”€ Tablet / Desktop refinements â”€â”€ */
+/* ── Tablet / Desktop refinements ── */
 @media (min-width: 640px) {
   .page-header { padding: 2.5rem 2rem 1.5rem; }
   .controls { padding: 1rem 2rem; }

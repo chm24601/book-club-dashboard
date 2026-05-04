@@ -1,164 +1,224 @@
-// GET SLUG FROM URL
 function getSlugFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('slug');
+  return new URLSearchParams(window.location.search).get("slug");
 }
 
-// NORMALIZE
 function normalize(str) {
   return str?.toLowerCase().trim() || "";
 }
 
-// ⭐ STAR FUNCTION
-function getStarRating(rating) {
-  if (!rating) return "";
-
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5;
-
-  let stars = "⭐".repeat(fullStars);
-  if (halfStar) stars += "✨";
-
-  return stars;
+function formatDate(dateString) {
+  if (!dateString) return "";
+  return new Date(dateString).toLocaleString("en-US", { month: "long", year: "numeric" });
 }
 
-// LOAD BOOK + ENTRIES
+function starsHTML(rating, size = "1rem") {
+  if (!rating) return "";
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  let html = `<span class="stars" style="font-size:${size}">`;
+  html += "★".repeat(full);
+  if (half) html += `<span class="s-half" style="font-size:0.7em;vertical-align:middle;">½</span>`;
+  html += `<span class="s-empty">${"★".repeat(empty)}</span>`;
+  html += "</span>";
+  return html;
+}
+
+function coverImg(book, cls, phCls, phH) {
+  return book?.BookCover
+    ? `<img src="${book.BookCover}" alt="${book.Title}" class="${cls}" />`
+    : `<div class="${phCls}" style="height:${phH}"></div>`;
+}
+
 async function loadBook() {
   const slug = getSlugFromURL();
 
   try {
     const [booksRes, entriesRes] = await Promise.all([
-      fetch('/api/books'),
-      fetch('/api/entries')
+      fetch("/api/books"),
+      fetch("/api/entries")
     ]);
-
     const booksData = await booksRes.json();
     const entriesData = await entriesRes.json();
 
     let books = booksData.records.map(r => r.fields);
     const entries = entriesData.records.map(r => r.fields);
 
-    // ✅ SORT BY DATE (newest first — SAME AS HOMEPAGE)
-    books.sort((a, b) => {
-      const dateA = new Date(a["Date Read"] || 0);
-      const dateB = new Date(b["Date Read"] || 0);
-      return dateB - dateA;
-    });
+    // Sort newest first (for prev/next nav)
+    books.sort((a, b) =>
+      new Date(b["Date Read"] || 0) - new Date(a["Date Read"] || 0)
+    );
 
-    // ✅ FIND CURRENT BOOK
     const bookIndex = books.findIndex(b =>
       normalize(b.Slug) === normalize(slug) ||
       normalize(b.Title) === normalize(decodeURIComponent(slug))
     );
 
     const book = books[bookIndex];
-
     if (!book) {
-      console.error("Book not found:", slug);
+      document.getElementById("book-container").innerHTML =
+        `<p style="padding:2rem;color:var(--ink-3);font-style:italic;">Book not found.</p>`;
       return;
     }
 
-    // ✅ MATCH ENTRIES (robust)
+    // Match entries
     const bookEntries = entries.filter(e => {
       if (!e.BookSlug) return false;
-
-      const entrySlug = normalize(e.BookSlug);
-      const bookSlug = normalize(book.Slug);
-      const bookTitle = normalize(book.Title);
-
+      const es = normalize(e.BookSlug);
       return (
-        entrySlug === bookSlug ||
-        entrySlug === bookTitle ||
-        entrySlug.includes(bookSlug)
+        es === normalize(book.Slug) ||
+        es === normalize(book.Title) ||
+        es.includes(normalize(book.Slug))
       );
     });
 
-    // ⭐ CALCULATE AVERAGE
-    const ratings = bookEntries
-      .map(e => Number(e.Rating))
-      .filter(r => !isNaN(r));
+    // Average rating
+    const ratings = bookEntries.map(e => Number(e.Rating)).filter(r => !isNaN(r));
+    const avg = ratings.length > 0
+      ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
+      : null;
 
-    let avg = null;
-    if (ratings.length > 0) {
-      avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-      avg = Math.round(avg * 10) / 10;
-    }
-
+    renderNav(books, bookIndex);
     renderBook(book, avg);
     renderEntries(bookEntries);
-
-    // 🔥 CHRONOLOGICAL NAVIGATION (FIXED)
-    const prevBook = books[bookIndex + 1]; // older
-    const nextBook = books[bookIndex - 1]; // newer
-
-    const navContainer = document.getElementById('book-nav');
-
-    if (navContainer) {
-      navContainer.innerHTML = `
-        ${prevBook ? `<a href="book.html?slug=${prevBook.Slug || encodeURIComponent(prevBook.Title)}">← Previous</a>` : '<span></span>'}
-        <a href="books.html">Back to all books</a>
-        ${nextBook ? `<a href="book.html?slug=${nextBook.Slug || encodeURIComponent(nextBook.Title)}">Next →</a>` : '<span></span>'}
-      `;
-    }
 
   } catch (err) {
     console.error("Error loading book:", err);
   }
 }
 
-// RENDER BOOK
-function renderBook(book, avgRating) {
-  const container = document.getElementById('book-container');
+function renderNav(books, bookIndex) {
+  const prev = books[bookIndex + 1]; // older
+  const next = books[bookIndex - 1]; // newer
+  const nav = document.getElementById("book-nav");
+  if (!nav) return;
+
+  const prevLink = prev
+    ? `<a href="book.html?slug=${prev.Slug || encodeURIComponent(prev.Title)}">← ${prev.Title}</a>`
+    : `<span></span>`;
+
+  const nextLink = next
+    ? `<a href="book.html?slug=${next.Slug || encodeURIComponent(next.Title)}" style="text-align:right">${next.Title} →</a>`
+    : `<span></span>`;
+
+  nav.innerHTML = `
+    ${prevLink}
+    <a href="books.html" class="nav-center">All books</a>
+    ${nextLink}
+  `;
+}
+
+function renderBook(book, avg) {
+  const container = document.getElementById("book-container");
+  if (!container) return;
 
   container.innerHTML = `
     <div class="book-detail">
-      <img src="${book.BookCover}" alt="${book.Title}" />
+      ${coverImg(book, "detail-cover", "detail-cover-ph", "148px")}
+      <div class="detail-info">
+        <span class="detail-tag">book details</span>
+        <h1 class="detail-title">${book.Title}</h1>
+        <p class="detail-author">${book.Author}</p>
 
-      <div class="book-info">
-        <h1>${book.Title}</h1>
-        <p>${book.Author}</p>
+        <div class="detail-meta-row">
+          ${book["Date Read"] ? `
+            <div class="detail-meta-item">
+              <span class="meta-label">Read</span>
+              <span class="meta-val">${formatDate(book["Date Read"])}</span>
+            </div>` : ""}
 
-        ${
-          book["Date Read"]
-            ? `<p><strong>Book Club Pick:</strong> ${new Date(book["Date Read"]).toLocaleString("en-US", { month: "long", year: "numeric" })}</p>`
-            : ''
-        }
+          ${book["GoodreadsRating"] ? `
+            <div class="detail-meta-item">
+              <span class="meta-label">Goodreads</span>
+              <span class="meta-val">${book["GoodreadsRating"]}</span>
+            </div>` : ""}
 
-        ${
-          book["GoodreadsRating"]
-            ? `<p><strong>Goodreads Rating:</strong> ⭐ ${book["GoodreadsRating"]}</p>`
-            : ''
-        }
-
-        ${
-          avgRating
-            ? `<p><strong>Book Club Rating:</strong> ${getStarRating(avgRating)}</p>`
-            : ''
-        }
+          ${avg ? `
+            <div class="detail-meta-item">
+              <span class="meta-label">Club avg</span>
+              <div class="club-rating-block">
+                ${starsHTML(avg, "0.875rem")}
+                <span class="avg-num">${avg}</span>
+              </div>
+            </div>` : ""}
+        </div>
       </div>
     </div>
   `;
 }
 
-// RENDER ENTRIES
 function renderEntries(entries) {
-  const container = document.getElementById('entries-container');
-
+  const container = document.getElementById("entries-container");
+  const countEl = document.getElementById("entry-count");
   if (!container) return;
 
+  if (countEl) {
+    countEl.textContent = entries.length > 0 ? `${entries.length} review${entries.length !== 1 ? "s" : ""}` : "";
+  }
+
   if (entries.length === 0) {
-    container.innerHTML = `<p>No entries yet.</p>`;
+    container.innerHTML = `<p class="no-entries">No reviews yet — be the first.</p>`;
     return;
   }
 
-  container.innerHTML = entries.map(e => `
-    <div class="entry">
-      <h4>${e.MemberName}</h4>
-      <p>${getStarRating(Number(e.Rating))}</p>
-      <p>${e.Note || ''}</p>
-    </div>
-  `).join('');
+  container.innerHTML = entries.map(e => {
+    const rating = Number(e.Rating);
+    return `
+      <div class="entry">
+        <div class="entry-header">
+          <span class="entry-name">${e.MemberName || "Anonymous"}</span>
+          ${!isNaN(rating) ? starsHTML(rating, "0.875rem") : ""}
+        </div>
+        ${e.Note ? `<p class="entry-note">${e.Note}</p>` : ""}
+        ${e.Link ? `<a class="entry-link" href="${e.Link}" target="_blank" rel="noopener">↗ Link</a>` : ""}
+      </div>
+    `;
+  }).join("");
 }
 
-// INIT
-document.addEventListener('DOMContentLoaded', loadBook);
+// Form submission
+document.addEventListener("DOMContentLoaded", () => {
+  loadBook();
+
+  const form = document.getElementById("entry-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const slug = getSlugFromURL();
+    const btn = form.querySelector("button[type='submit']");
+    btn.textContent = "Submitting…";
+    btn.disabled = true;
+
+    const payload = {
+      slug,
+      name: document.getElementById("name").value,
+      rating: document.getElementById("rating").value,
+      note: document.getElementById("note").value,
+      link: document.getElementById("link").value,
+    };
+
+    try {
+      const res = await fetch("/api/submit-entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        form.innerHTML = `<p class="form-success">Thank you — your thoughts have been saved.</p>`;
+        // Reload entries after a beat
+        setTimeout(loadBook, 800);
+      } else {
+        btn.textContent = "Submit";
+        btn.disabled = false;
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      btn.textContent = "Submit";
+      btn.disabled = false;
+    }
+  });
+});

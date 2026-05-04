@@ -3,40 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Book Club</title>
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-  <!-- TITLE -->
-  <h1 class="title">The Book Club for Difficult Women</h1>
+  <header class="page-header">
+    <span class="page-eyebrow">our book club</span>
+    <h1 class="page-title">The Book Club for<br><em>Difficult Women</em></h1>
+  </header>
 
-  <!-- SEARCH + YEAR FILTER CONTROLS -->
   <div class="controls">
-    <input 
-      type="text" 
-      id="search-input" 
-      placeholder="Search books..."
-    />
-
-    <!-- NEW YEAR FILTER -->
+    <input type="text" id="search-input" placeholder="Search by title or author…" autocomplete="off" />
     <select id="yearFilter">
-      <option value="all">All Years</option>
+      <option value="all">All years</option>
     </select>
   </div>
 
-  <!-- BOOK GRID -->
   <div id="books-container"></div>
 
-  <!-- SCRIPT (IMPORTANT: must be at bottom) -->
   <script src="script.js"></script>
-
 </body>
 </html>
