@@ -110,6 +110,7 @@ function renderNav(books, bookIndex) {
 
 function renderBook(book, avg) {
   const container = document.getElementById("book-container");
+  document.title = `${book.Title} — Book Club`;
   if (!container) return;
 
   container.innerHTML = `
