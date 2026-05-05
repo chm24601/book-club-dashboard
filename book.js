@@ -32,7 +32,6 @@ function coverImg(book, cls, phCls, phH) {
 
 async function loadBook() {
   const slug = getSlugFromURL();
-
   try {
     const [booksRes, entriesRes] = await Promise.all([
       fetch("/api/books"),
@@ -44,10 +43,7 @@ async function loadBook() {
     let books = booksData.records.map(r => r.fields);
     const entries = entriesData.records.map(r => r.fields);
 
-    // Sort newest first (for prev/next nav)
-    books.sort((a, b) =>
-      new Date(b["Date Read"] || 0) - new Date(a["Date Read"] || 0)
-    );
+    books.sort((a, b) => new Date(b["Date Read"] || 0) - new Date(a["Date Read"] || 0));
 
     const bookIndex = books.findIndex(b =>
       normalize(b.Slug) === normalize(slug) ||
@@ -61,18 +57,12 @@ async function loadBook() {
       return;
     }
 
-    // Match entries
     const bookEntries = entries.filter(e => {
       if (!e.BookSlug) return false;
       const es = normalize(e.BookSlug);
-      return (
-        es === normalize(book.Slug) ||
-        es === normalize(book.Title) ||
-        es.includes(normalize(book.Slug))
-      );
+      return es === normalize(book.Slug) || es === normalize(book.Title) || es.includes(normalize(book.Slug));
     });
 
-    // Average rating
     const ratings = bookEntries.map(e => Number(e.Rating)).filter(r => !isNaN(r));
     const avg = ratings.length > 0
       ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
@@ -88,65 +78,37 @@ async function loadBook() {
 }
 
 function renderNav(books, bookIndex) {
-  const prev = books[bookIndex + 1]; // older
-  const next = books[bookIndex - 1]; // newer
+  const prev = books[bookIndex + 1];
+  const next = books[bookIndex - 1];
   const nav = document.getElementById("book-nav");
   if (!nav) return;
 
   const prevLink = prev
-    ? `<a href="book.html?slug=${prev.Slug || encodeURIComponent(prev.Title)}" class="nav-prev">
-         <span class="nav-arrow">←</span>
-         <span class="nav-title">${prev.Title}</span>
-       </a>`
+    ? `<a href="book.html?slug=${prev.Slug || encodeURIComponent(prev.Title)}" class="nav-prev"><span class="nav-arrow">←</span><span class="nav-title">${prev.Title}</span></a>`
     : `<span></span>`;
 
   const nextLink = next
-    ? `<a href="book.html?slug=${next.Slug || encodeURIComponent(next.Title)}" class="nav-next" style="text-align:right">
-         <span class="nav-title">${next.Title}</span>
-         <span class="nav-arrow">→</span>
-       </a>`
+    ? `<a href="book.html?slug=${next.Slug || encodeURIComponent(next.Title)}" class="nav-next" style="text-align:right"><span class="nav-title">${next.Title}</span><span class="nav-arrow">→</span></a>`
     : `<span></span>`;
 
-  nav.innerHTML = `
-    ${prevLink}
-    <a href="books.html" class="nav-center">All books</a>
-    ${nextLink}
-  `;
+  nav.innerHTML = `${prevLink}<a href="books.html" class="nav-center">All books</a>${nextLink}`;
 }
 
 function renderBook(book, avg) {
   const container = document.getElementById("book-container");
   if (!container) return;
-
+  document.title = `${book.Title} — Book Club`;
   container.innerHTML = `
     <div class="book-detail">
-      ${coverImg(book, "detail-cover", "detail-cover-ph", "148px")}
+      ${coverImg(book, "detail-cover", "detail-cover-ph", "178px")}
       <div class="detail-info">
         <span class="detail-tag">book details</span>
         <h1 class="detail-title">${book.Title}</h1>
         <p class="detail-author">${book.Author}</p>
-
         <div class="detail-meta-row">
-          ${book["Date Read"] ? `
-            <div class="detail-meta-item">
-              <span class="meta-label">Read</span>
-              <span class="meta-val">${formatDate(book["Date Read"])}</span>
-            </div>` : ""}
-
-          ${book["GoodreadsRating"] ? `
-            <div class="detail-meta-item">
-              <span class="meta-label">Goodreads</span>
-              <span class="meta-val">${book["GoodreadsRating"]}</span>
-            </div>` : ""}
-
-          ${avg ? `
-            <div class="detail-meta-item">
-              <span class="meta-label">Club avg</span>
-              <div class="club-rating-block">
-                ${starsHTML(avg, "0.875rem")}
-                <span class="avg-num">${avg}</span>
-              </div>
-            </div>` : ""}
+          ${book["Date Read"] ? `<div class="detail-meta-item"><span class="meta-label">Read</span><span class="meta-val">${formatDate(book["Date Read"])}</span></div>` : ""}
+          ${book["GoodreadsRating"] ? `<div class="detail-meta-item"><span class="meta-label">Goodreads</span><span class="meta-val">${book["GoodreadsRating"]}</span></div>` : ""}
+          ${avg ? `<div class="detail-meta-item"><span class="meta-label">Club avg</span><div class="club-rating-block">${starsHTML(avg, "0.875rem")}<span class="avg-num">${avg}</span></div></div>` : ""}
         </div>
       </div>
     </div>
@@ -157,16 +119,11 @@ function renderEntries(entries) {
   const container = document.getElementById("entries-container");
   const countEl = document.getElementById("entry-count");
   if (!container) return;
-
-  if (countEl) {
-    countEl.textContent = entries.length > 0 ? `${entries.length} review${entries.length !== 1 ? "s" : ""}` : "";
-  }
-
+  if (countEl) countEl.textContent = entries.length > 0 ? `${entries.length} review${entries.length !== 1 ? "s" : ""}` : "";
   if (entries.length === 0) {
     container.innerHTML = `<p class="no-entries">No reviews yet — be the first.</p>`;
     return;
   }
-
   container.innerHTML = entries.map(e => {
     const rating = Number(e.Rating);
     return `
@@ -182,7 +139,6 @@ function renderEntries(entries) {
   }).join("");
 }
 
-// ── Star Picker ──
 function initStarPicker() {
   const picker = document.getElementById("star-picker");
   const input = document.getElementById("rating");
@@ -191,16 +147,11 @@ function initStarPicker() {
 
   const stars = picker.querySelectorAll(".star-pick");
   let currentRating = 0;
+  const labels = { 0.5:"½", 1:"1", 1.5:"1½", 2:"2", 2.5:"2½", 3:"3", 3.5:"3½", 4:"4", 4.5:"4½", 5:"5" };
 
-  const labels = {
-    0.5: "½", 1: "1", 1.5: "1½", 2: "2", 2.5: "2½",
-    3: "3", 3.5: "3½", 4: "4", 4.5: "4½", 5: "5"
-  };
-
-  function getRatingFromEvent(e, star) {
+  function getRating(clientX, star) {
     const rect = star.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    return x < rect.width / 2 ? parseInt(star.dataset.value) - 0.5 : parseInt(star.dataset.value);
+    return (clientX - rect.left) < rect.width / 2 ? parseInt(star.dataset.value) - 0.5 : parseInt(star.dataset.value);
   }
 
   function paintStars(rating) {
@@ -215,9 +166,8 @@ function initStarPicker() {
   picker.addEventListener("mousemove", e => {
     const star = e.target.closest(".star-pick");
     if (!star) return;
-    const rating = getRatingFromEvent(e, star);
-    paintStars(rating);
-    label.textContent = labels[rating] || "";
+    paintStars(getRating(e.clientX, star));
+    label.textContent = labels[getRating(e.clientX, star)] || "";
     star.classList.add("hovered");
   });
 
@@ -229,33 +179,27 @@ function initStarPicker() {
   picker.addEventListener("click", e => {
     const star = e.target.closest(".star-pick");
     if (!star) return;
-    const rating = getRatingFromEvent(e, star);
-    currentRating = rating;
-    input.value = rating;
-    paintStars(rating);
-    label.textContent = labels[rating] || "";
+    currentRating = getRating(e.clientX, star);
+    input.value = currentRating;
+    paintStars(currentRating);
+    label.textContent = labels[currentRating] || "";
   });
 
-  // Touch support
   picker.addEventListener("touchend", e => {
     e.preventDefault();
     const touch = e.changedTouches[0];
     const star = document.elementFromPoint(touch.clientX, touch.clientY)?.closest(".star-pick");
     if (!star) return;
-    const rect = star.getBoundingClientRect();
-    const rating = (touch.clientX - rect.left) < rect.width / 2
-      ? parseInt(star.dataset.value) - 0.5
-      : parseInt(star.dataset.value);
-    currentRating = rating;
-    input.value = rating;
-    paintStars(rating);
-    label.textContent = labels[rating] || "";
+    currentRating = getRating(touch.clientX, star);
+    input.value = currentRating;
+    paintStars(currentRating);
+    label.textContent = labels[currentRating] || "";
   });
 }
 
-// Form submission
-document.addEventListener("DOMContentLoaded", () => {
-  loadBook().then(() => initStarPicker());
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadBook();
+  initStarPicker();
 
   const form = document.getElementById("entry-form");
   if (!form) return;
@@ -263,15 +207,18 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async e => {
     e.preventDefault();
 
+    const rating = document.getElementById("rating").value;
+    if (!rating) { alert("Please select a star rating!"); return; }
+
     const slug = getSlugFromURL();
     const btn = form.querySelector("button[type='submit']");
     btn.textContent = "Submitting…";
     btn.disabled = true;
 
     const payload = {
-      slug,
-      name: document.getElementById("name").value,
-      rating: document.getElementById("rating").value,
+      bookSlug: slug,
+      memberName: document.getElementById("name").value,
+      rating,
       note: document.getElementById("note").value,
       link: document.getElementById("link").value,
     };
@@ -282,10 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (res.ok) {
         form.innerHTML = `<p class="form-success">Thank you — your thoughts have been saved.</p>`;
-        // Reload entries after a beat
         setTimeout(loadBook, 800);
       } else {
         btn.textContent = "Submit";
