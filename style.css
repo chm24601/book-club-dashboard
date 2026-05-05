@@ -399,7 +399,7 @@ a { color: inherit; text-decoration: none; }
   gap: 0.5rem;
 }
 .book-nav a {
-  color: var(--ink-2);
+  color: #EFEBCE;
   transition: color 0.15s;
   font-size: 0.8rem;
   display: flex;
