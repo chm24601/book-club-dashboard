@@ -398,13 +398,14 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 0.5px solid rgba(30,30,16,0.15);
   gap: 0.5rem;
 }
-.book-nav a {
-  color: #EFEBCE;
+..book-nav a {
+  color: #6b2737;
   transition: color 0.15s;
   font-size: 0.8rem;
   display: flex;
   align-items: center;
   gap: 0.3rem;
+}
 }
 .book-nav a:hover { color: #BB858B; }
 .book-nav .nav-title { display: none; }
