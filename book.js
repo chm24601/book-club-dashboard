@@ -182,9 +182,80 @@ function renderEntries(entries) {
   }).join("");
 }
 
+// ── Star Picker ──
+function initStarPicker() {
+  const picker = document.getElementById("star-picker");
+  const input = document.getElementById("rating");
+  const label = document.getElementById("star-value-label");
+  if (!picker) return;
+
+  const stars = picker.querySelectorAll(".star-pick");
+  let currentRating = 0;
+
+  const labels = {
+    0.5: "½", 1: "1", 1.5: "1½", 2: "2", 2.5: "2½",
+    3: "3", 3.5: "3½", 4: "4", 4.5: "4½", 5: "5"
+  };
+
+  function getRatingFromEvent(e, star) {
+    const rect = star.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    return x < rect.width / 2 ? parseInt(star.dataset.value) - 0.5 : parseInt(star.dataset.value);
+  }
+
+  function paintStars(rating) {
+    stars.forEach(star => {
+      const val = parseInt(star.dataset.value);
+      star.classList.remove("full", "half", "hovered");
+      if (rating >= val) star.classList.add("full");
+      else if (rating >= val - 0.5) star.classList.add("half");
+    });
+  }
+
+  picker.addEventListener("mousemove", e => {
+    const star = e.target.closest(".star-pick");
+    if (!star) return;
+    const rating = getRatingFromEvent(e, star);
+    paintStars(rating);
+    label.textContent = labels[rating] || "";
+    star.classList.add("hovered");
+  });
+
+  picker.addEventListener("mouseleave", () => {
+    paintStars(currentRating);
+    label.textContent = currentRating ? labels[currentRating] : "";
+  });
+
+  picker.addEventListener("click", e => {
+    const star = e.target.closest(".star-pick");
+    if (!star) return;
+    const rating = getRatingFromEvent(e, star);
+    currentRating = rating;
+    input.value = rating;
+    paintStars(rating);
+    label.textContent = labels[rating] || "";
+  });
+
+  // Touch support
+  picker.addEventListener("touchend", e => {
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const star = document.elementFromPoint(touch.clientX, touch.clientY)?.closest(".star-pick");
+    if (!star) return;
+    const rect = star.getBoundingClientRect();
+    const rating = (touch.clientX - rect.left) < rect.width / 2
+      ? parseInt(star.dataset.value) - 0.5
+      : parseInt(star.dataset.value);
+    currentRating = rating;
+    input.value = rating;
+    paintStars(rating);
+    label.textContent = labels[rating] || "";
+  });
+}
+
 // Form submission
 document.addEventListener("DOMContentLoaded", () => {
-  loadBook();
+  loadBook().then(() => initStarPicker());
 
   const form = document.getElementById("entry-form");
   if (!form) return;
