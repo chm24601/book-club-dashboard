@@ -18,26 +18,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Auto-fetch cover from Google Books API (no key required)
+    // 1. Auto-fetch cover from Open Library (free, no key required)
     let bookCover = '';
     try {
-      const query = encodeURIComponent(`intitle:${title} inauthor:${author}`);
-      const gbRes = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`
+      const t = encodeURIComponent(title);
+      const a = encodeURIComponent(author);
+      const olRes = await fetch(
+        `https://openlibrary.org/search.json?title=${t}&author=${a}&limit=1&fields=cover_i,isbn`
       );
-      const gbData = await gbRes.json();
-      const item = gbData.items?.[0];
-      const thumbnail =
-        item?.volumeInfo?.imageLinks?.thumbnail ||
-        item?.volumeInfo?.imageLinks?.smallThumbnail;
-      if (thumbnail) {
-        bookCover = thumbnail
-          .replace('http://', 'https://')
-          .replace('&edge=curl', '')
-          .replace('zoom=1', 'zoom=2');
+      const olData = await olRes.json();
+      const doc = olData.docs?.[0];
+      if (doc?.cover_i) {
+        bookCover = `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`;
+      } else if (doc?.isbn?.[0]) {
+        bookCover = `https://covers.openlibrary.org/b/isbn/${doc.isbn[0]}-M.jpg`;
       }
     } catch (e) {
-      console.error('Google Books fetch failed:', e);
+      console.error('Open Library fetch failed:', e);
     }
 
     // 2. Find and unset any existing current book
