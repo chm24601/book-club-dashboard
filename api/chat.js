@@ -101,9 +101,8 @@ When making predictions or recommendations, reference their actual history. Note
     const data = await geminiRes.json();
     if (!geminiRes.ok) {
       console.error('Gemini error:', data);
-      return res.status(500).json({
-        error: 'AI service error — check that your GEMINI_API_KEY is valid.',
-      });
+      const detail = data?.error?.message || data?.error?.status || JSON.stringify(data);
+      return res.status(500).json({ error: `Gemini error: ${detail}` });
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
