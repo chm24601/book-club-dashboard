@@ -1,7 +1,9 @@
 export default async function handler(req, res) {
   if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { recordId } = req.body || {};
+  const { recordId, pin } = req.body || {};
+  const VALID_PIN = process.env.ADD_BOOK_PIN || '609';
+  if (pin !== VALID_PIN) return res.status(403).json({ error: 'Invalid PIN' });
   if (!recordId) return res.status(400).json({ error: 'recordId required' });
 
   const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;

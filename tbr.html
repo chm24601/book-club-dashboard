@@ -365,6 +365,15 @@
                 <button class="tbr-promote-btn" data-id="${book.id}">Set as next read →</button>
                 <button class="tbr-delete-btn" data-id="${book.id}" title="Remove">✕</button>
               </div>
+              <div class="delete-panel promote-panel" id="delete-${book.id}">
+                <div style="font-family:var(--f-body);font-size:0.8rem;color:var(--ink-2);margin-bottom:0.5rem;">Enter PIN to remove this book</div>
+                <div class="promote-row">
+                  <input type="password" class="delete-pin" maxlength="6" placeholder="·····" inputmode="numeric" style="max-width:120px" />
+                  <button class="promote-confirm delete-confirm" data-id="${book.id}">Remove</button>
+                  <button type="button" class="promote-cancel delete-cancel">Cancel</button>
+                </div>
+                <span class="delete-error promote-error" style="display:none"></span>
+              </div>
               <div class="promote-panel" id="promote-${book.id}">
                 <div>
                   <label>Reading month</label>
@@ -428,25 +437,64 @@
         });
       });
 
-      // Delete buttons
+      // Delete buttons — show inline PIN panel
       document.querySelectorAll('.tbr-delete-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          if (!confirm('Remove this book from the TBR list?')) return;
+        btn.addEventListener('click', () => {
           const id = btn.dataset.id;
+          const panel = document.getElementById(`delete-${id}`);
+          panel.classList.toggle('open');
+        });
+      });
+
+      // Delete confirm buttons
+      document.querySelectorAll('.delete-confirm').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const panel = btn.closest('.delete-panel');
+          const id = btn.dataset.id;
+          const pin = panel.querySelector('.delete-pin').value.trim();
+          const errEl = panel.querySelector('.delete-error');
+          if (!pin) { errEl.textContent = 'Enter the club PIN.'; errEl.style.display = ''; return; }
+
+          btn.textContent = 'Removing…';
+          btn.disabled = true;
+          errEl.style.display = 'none';
+
           try {
             const res = await fetch('/api/tbr-delete', {
               method: 'DELETE',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ recordId: id }),
+              body: JSON.stringify({ recordId: id, pin }),
             });
-            if (res.ok) {
+            if (res.status === 403) {
+              errEl.textContent = 'Incorrect PIN.';
+              errEl.style.display = '';
+              btn.textContent = 'Remove';
+              btn.disabled = false;
+            } else if (res.ok) {
               btn.closest('.tbr-item').remove();
               if (!document.querySelector('.tbr-item')) {
                 document.getElementById('tbr-list').innerHTML =
                   `<p class="tbr-empty">No suggestions yet — be the first to add one!</p>`;
               }
+            } else {
+              errEl.textContent = 'Something went wrong.';
+              errEl.style.display = '';
+              btn.textContent = 'Remove';
+              btn.disabled = false;
             }
-          } catch {}
+          } catch {
+            errEl.textContent = 'Connection error.';
+            errEl.style.display = '';
+            btn.textContent = 'Remove';
+            btn.disabled = false;
+          }
+        });
+      });
+
+      // Delete cancel buttons
+      document.querySelectorAll('.delete-cancel').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.closest('.delete-panel').classList.remove('open');
         });
       });
 
