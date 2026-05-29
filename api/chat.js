@@ -111,6 +111,6 @@ When making predictions or recommendations, reference their actual history. Note
     return res.status(200).json({ response: text });
   } catch (error) {
     console.error('Groq call failed:', error);
-    return res.status(500).json({ error: 'Failed to reach AI service' });
+    return res.status(500).json({ error: `Failed to reach AI service: ${error.message}` });
   }
 }
