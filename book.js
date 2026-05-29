@@ -226,12 +226,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     btn.disabled = true;
 
     const rating = document.getElementById("rating").value;
+    const note = document.getElementById("note").value.trim();
+    const link = document.getElementById("link").value.trim();
+
+    if (!note && !link && !rating) {
+      alert("Please add a note, a link, or a rating before submitting.");
+      btn.textContent = "Submit";
+      btn.disabled = false;
+      return;
+    }
+
     const payload = {
       bookSlug: slug,
       memberName,
       rating: rating || null,
-      note: document.getElementById("note").value,
-      link: document.getElementById("link").value,
+      note,
+      link,
     };
 
     try {

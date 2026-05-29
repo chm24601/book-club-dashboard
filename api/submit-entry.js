@@ -15,9 +15,9 @@ export default async function handler(req, res) {
   try {
     const { bookSlug, memberName, rating, note, link } = req.body || {};
 
-    if (!bookSlug || !memberName || !note) {
+    if (!bookSlug || !memberName) {
       return res.status(400).json({
-        error: 'bookSlug, memberName, and note are required',
+        error: 'bookSlug and memberName are required',
       });
     }
 
