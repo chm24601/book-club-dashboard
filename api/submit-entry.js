@@ -15,11 +15,19 @@ export default async function handler(req, res) {
   try {
     const { bookSlug, memberName, rating, note, link } = req.body || {};
 
-    if (!bookSlug || !memberName || !rating || !note) {
+    if (!bookSlug || !memberName || !note) {
       return res.status(400).json({
-        error: 'bookSlug, memberName, rating, and note are required',
+        error: 'bookSlug, memberName, and note are required',
       });
     }
+
+    const entryFields = {
+      BookSlug: bookSlug,
+      MemberName: memberName,
+      Note: note,
+      Link: link || '',
+    };
+    if (rating) entryFields.Rating = Number(rating);
 
     const airtableResponse = await fetch(
       `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/BookEntries`,
@@ -30,17 +38,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          records: [
-            {
-              fields: {
-                BookSlug: bookSlug,
-                MemberName: memberName,
-                Rating: Number(rating),
-                Note: note,
-                Link: link || '',
-              },
-            },
-          ],
+          records: [{ fields: entryFields }],
         }),
       }
     );

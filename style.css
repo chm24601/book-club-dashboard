@@ -582,6 +582,7 @@ a { color: inherit; text-decoration: none; }
 }
 .star-rating-input:focus-within { border-color: var(--line-gold); }
 .star-label { font-family: var(--f-body); font-size: 0.95rem; color: var(--ink-3); white-space: nowrap; }
+.optional-label { font-size: 0.8rem; color: var(--ink-3); opacity: 0.65; }
 .star-picker { display: flex; gap: 2px; cursor: pointer; }
 
 .star-pick {

@@ -201,24 +201,35 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadBook();
   initStarPicker();
 
+  const nameSelect = document.getElementById("name");
+  const guestInput = document.getElementById("guest-name");
+  nameSelect?.addEventListener("change", () => {
+    const isGuest = nameSelect.value === "__guest__";
+    guestInput.style.display = isGuest ? "" : "none";
+    guestInput.required = isGuest;
+    if (!isGuest) guestInput.value = "";
+  });
+
   const form = document.getElementById("entry-form");
   if (!form) return;
 
   form.addEventListener("submit", async e => {
     e.preventDefault();
 
-    const rating = document.getElementById("rating").value;
-    if (!rating) { alert("Please select a star rating!"); return; }
+    const nameVal = nameSelect.value;
+    const memberName = nameVal === "__guest__" ? guestInput.value.trim() : nameVal;
+    if (!memberName) { alert("Please enter your name."); return; }
 
     const slug = getSlugFromURL();
     const btn = form.querySelector("button[type='submit']");
     btn.textContent = "Submitting…";
     btn.disabled = true;
 
+    const rating = document.getElementById("rating").value;
     const payload = {
       bookSlug: slug,
-      memberName: document.getElementById("name").value,
-      rating,
+      memberName,
+      rating: rating || null,
       note: document.getElementById("note").value,
       link: document.getElementById("link").value,
     };

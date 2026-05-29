@@ -32,10 +32,13 @@
         <option value="Emily">Emily</option>
         <option value="Alyssa">Alyssa</option>
         <option value="Sam">Sam</option>
+        <option value="__guest__">Guest</option>
       </select>
 
+      <input type="text" id="guest-name" placeholder="Your name…" style="display:none" />
+
       <div class="star-rating-input">
-        <span class="star-label">Your rating…</span>
+        <span class="star-label">Your rating… <span class="optional-label">(optional)</span></span>
         <div class="star-picker" id="star-picker">
           <span class="star-pick" data-value="1">★</span>
           <span class="star-pick" data-value="2">★</span>
@@ -44,10 +47,10 @@
           <span class="star-pick" data-value="5">★</span>
         </div>
         <span class="star-value-label" id="star-value-label"></span>
-        <input type="hidden" id="rating" required />
+        <input type="hidden" id="rating" />
       </div>
 
-      <textarea id="note" placeholder="Your thoughts on the book…"></textarea>
+      <textarea id="note" placeholder="Your thoughts on the book…" required></textarea>
 
       <input type="text" id="link" placeholder="Optional link (article, review…)" />
 
