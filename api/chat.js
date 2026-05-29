@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  const GEMINI_API_KEY = process.env.Google_Token;
   const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
 
