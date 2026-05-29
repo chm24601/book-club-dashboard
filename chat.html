@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Advisor — Book Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+
+    .chat-page {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    .chat-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.875rem 1.25rem;
+      border-bottom: 0.5px solid rgba(58,58,40,0.15);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .chat-nav a {
+      font-family: var(--f-body);
+      font-size: 0.8rem;
+      color: var(--ink-2);
+      letter-spacing: 0.04em;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .chat-nav a:hover { color: #BB858B; }
+    .chat-nav-center { text-align: center; }
+    .chat-nav-title {
+      font-family: var(--f-display);
+      font-size: 0.9rem;
+      color: var(--ink);
+      display: block;
+    }
+    .chat-nav-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      display: block;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chat-welcome {
+      text-align: center;
+      padding: 1.25rem 0 0.25rem;
+    }
+    .chat-welcome-icon { font-size: 2rem; display: block; margin-bottom: 0.75rem; }
+    .chat-welcome h2 {
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin: 0 0 0.35rem;
+    }
+    .chat-welcome p {
+      font-family: var(--f-body);
+      font-size: 0.82rem;
+      color: var(--ink-3);
+      font-style: italic;
+      margin: 0;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+    .chat-suggest {
+      background: var(--bg-card);
+      border: 0.5px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-family: var(--f-body);
+      font-size: 0.82rem;
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+    .chat-suggest:hover {
+      background: var(--bg-card-h);
+      border-color: #BB858B;
+      color: var(--ink);
+    }
+    .suggest-label {
+      display: block;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 0.2rem;
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+    }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.model { align-self: flex-start; align-items: flex-start; }
+
+    .msg-bubble {
+      padding: 0.75rem 1rem;
+      border-radius: 1.125rem;
+      font-family: var(--f-body);
+      font-size: 0.875rem;
+      line-height: 1.55;
+    }
+    .msg.user .msg-bubble {
+      background: #6b2737;
+      color: #EFEBCE;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.model .msg-bubble {
+      background: var(--bg-card);
+      color: var(--ink);
+      border: 0.5px solid var(--line);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(58,58,40,0.06);
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 0.875rem 1rem;
+      background: var(--bg-card);
+      border: 0.5px solid var(--line);
+      border-radius: 1.125rem;
+      border-bottom-left-radius: 4px;
+      align-items: center;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--ink-3);
+      border-radius: 50%;
+      animation: tdot 1.3s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes tdot {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .chat-input-area {
+      flex-shrink: 0;
+      padding: 0.875rem 1.25rem;
+      border-top: 0.5px solid rgba(58,58,40,0.15);
+      background: var(--bg);
+      display: flex;
+      gap: 0.625rem;
+      align-items: flex-end;
+    }
+    .chat-input-wrap {
+      flex: 1;
+      background: var(--bg-card);
+      border: 0.5px solid var(--line);
+      border-radius: 1.25rem;
+      padding: 0.625rem 1rem;
+      transition: border-color 0.15s;
+    }
+    .chat-input-wrap:focus-within { border-color: #BB858B; }
+    #chat-input {
+      background: none;
+      border: none;
+      outline: none;
+      font-family: var(--f-body);
+      font-size: 0.9rem;
+      color: var(--ink);
+      resize: none;
+      width: 100%;
+      max-height: 120px;
+      min-height: 20px;
+      line-height: 1.45;
+      display: block;
+    }
+    #chat-input::placeholder { color: var(--ink-3); }
+
+    #send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #6b2737;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #EFEBCE;
+      transition: background 0.15s, transform 0.1s;
+    }
+    #send-btn:hover { background: #7d2e40; transform: scale(1.05); }
+    #send-btn:disabled { background: var(--line); cursor: default; transform: none; }
+  </style>
+</head>
+<body>
+<div class="chat-page">
+
+  <nav class="chat-nav">
+    <a href="books.html">← All books</a>
+    <div class="chat-nav-center">
+      <span class="chat-nav-title">Book Advisor</span>
+      <span class="chat-nav-sub">powered by Gemini</span>
+    </div>
+    <span style="min-width:72px"></span>
+  </nav>
+
+  <div id="chat-messages" class="chat-messages">
+    <div class="chat-welcome">
+      <span class="chat-welcome-icon">✨</span>
+      <h2>Your Book Club Advisor</h2>
+      <p>Recommendations and predictions based on your club's reading history</p>
+    </div>
+
+    <div class="chat-suggestions" id="suggestions">
+      <button class="chat-suggest" data-prompt="Recommend our next book based on what we've loved so far.">
+        <span class="suggest-label">Recommendation</span>
+        Recommend our next book based on what we've loved
+      </button>
+      <button class="chat-suggest" data-prompt="What kind of books does our club tend to rate highest?">
+        <span class="suggest-label">About us</span>
+        What kind of books does our club tend to love?
+      </button>
+      <button class="chat-suggest" data-prompt="Suggest a book that would make for a really great discussion for us.">
+        <span class="suggest-label">Discussion pick</span>
+        What would make a great discussion book for us?
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <div class="chat-input-wrap">
+      <textarea id="chat-input" placeholder="Ask about books, recommendations, or paste a title…" rows="1"></textarea>
+    </div>
+    <button id="send-btn" aria-label="Send">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 8h12M14 8L9 3M14 8L9 13" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+</div>
+<script>
+  const messagesEl = document.getElementById('chat-messages');
+  const inputEl = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+  const suggestionsEl = document.getElementById('suggestions');
+
+  let conversation = [];
+  let isLoading = false;
+
+  // Auto-resize textarea
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  });
+
+  // Suggested prompts
+  suggestionsEl.querySelectorAll('.chat-suggest').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prompt = btn.dataset.prompt;
+      suggestionsEl.remove();
+      sendMessage(prompt);
+    });
+  });
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+  sendBtn.addEventListener('click', handleSend);
+
+  function handleSend() {
+    const text = inputEl.value.trim();
+    if (!text || isLoading) return;
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    suggestionsEl?.remove();
+    sendMessage(text);
+  }
+
+  function formatResponse(raw) {
+    return raw
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function addMessage(role, content) {
+    const msg = document.createElement('div');
+    msg.className = `msg ${role}`;
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    if (role === 'model') {
+      bubble.innerHTML = formatResponse(content);
+    } else {
+      bubble.textContent = content;
+    }
+    msg.appendChild(bubble);
+    messagesEl.appendChild(msg);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function showTyping() {
+    const el = document.createElement('div');
+    el.className = 'msg model';
+    el.id = 'typing-msg';
+    el.innerHTML = `<div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>`;
+    messagesEl.appendChild(el);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return el;
+  }
+
+  async function sendMessage(text) {
+    if (isLoading) return;
+    isLoading = true;
+    sendBtn.disabled = true;
+
+    addMessage('user', text);
+    conversation.push({ role: 'user', content: text });
+
+    const typingEl = showTyping();
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversation }),
+      });
+      const data = await res.json();
+      typingEl.remove();
+
+      const reply = res.ok && data.response
+        ? data.response
+        : (data.error || 'Something went wrong — please try again.');
+
+      addMessage('model', reply);
+      if (res.ok && data.response) {
+        conversation.push({ role: 'model', content: data.response });
+      }
+    } catch {
+      typingEl.remove();
+      addMessage('model', 'Connection error — please check your internet and try again.');
+    }
+
+    isLoading = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+</script>
+</body>
+</html>

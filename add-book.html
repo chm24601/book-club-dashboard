@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Next Book — Book Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .pin-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+    .pin-card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--line);
+      border-radius: var(--r-xl);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(58,58,40,0.10);
+    }
+    .pin-card-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .pin-card h2 {
+      font-family: var(--f-display);
+      font-weight: 400;
+      font-size: 1.3rem;
+      color: var(--ink);
+      margin: 0 0 0.4rem;
+    }
+    .pin-card > p {
+      font-family: var(--f-body);
+      font-size: 0.85rem;
+      color: var(--ink-3);
+      margin: 0 0 1.5rem;
+    }
+    #pin-input {
+      width: 100%;
+      text-align: center;
+      font-size: 1.75rem;
+      letter-spacing: 0.5em;
+      padding: 0.625rem 1rem;
+      margin-bottom: 0.75rem;
+      box-sizing: border-box;
+    }
+    .pin-error {
+      font-family: var(--f-body);
+      font-size: 0.8rem;
+      color: #BB858B;
+      font-style: italic;
+      margin: 0 0 0.75rem;
+    }
+    #pin-btn { width: 100%; justify-content: center; margin: 0; }
+
+    .add-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 0.5px solid rgba(58,58,40,0.15);
+    }
+    .add-nav a {
+      font-family: var(--f-body);
+      font-size: 0.8rem;
+      color: var(--ink-2);
+      letter-spacing: 0.04em;
+      transition: color 0.15s;
+    }
+    .add-nav a:hover { color: #BB858B; }
+    .add-nav-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .add-header {
+      padding: 2.5rem 1.25rem 1.75rem;
+      border-bottom: 0.5px solid rgba(58,58,40,0.15);
+    }
+
+    .field-label {
+      display: block;
+      font-family: var(--f-body);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 0.4rem;
+    }
+
+    .cover-hint {
+      font-family: var(--f-body);
+      font-size: 0.78rem;
+      color: var(--ink-3);
+      font-style: italic;
+      margin: 0.25rem 0 0;
+    }
+
+    .add-success {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      padding: 2.5rem 1.25rem;
+    }
+    .add-success img {
+      width: 90px;
+      height: 132px;
+      object-fit: cover;
+      border-radius: var(--r-md);
+      border: 0.5px solid var(--line);
+      box-shadow: 0 6px 24px rgba(58,58,40,0.18);
+    }
+    .add-success .cover-ph {
+      width: 90px;
+      height: 132px;
+      border-radius: var(--r-md);
+      background: linear-gradient(155deg, #D8A48F, #c4907a);
+      border: 0.5px solid var(--line);
+    }
+    .add-success h3 {
+      font-family: var(--f-display);
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--ink);
+      margin: 0;
+    }
+    .add-success .success-sub {
+      font-family: var(--f-body);
+      font-size: 0.85rem;
+      color: var(--ink-3);
+      font-style: italic;
+      margin: 0;
+    }
+    .add-success .success-note {
+      font-family: var(--f-body);
+      font-size: 0.78rem;
+      color: var(--ink-3);
+      margin: 0;
+    }
+    .add-success .stats-pill { margin: 0.5rem 0 0; }
+  </style>
+</head>
+<body>
+
+  <!-- PIN screen -->
+  <div id="pin-screen" class="pin-screen">
+    <div class="pin-card">
+      <span class="pin-card-icon">📅</span>
+      <h2>Add Next Month's Book</h2>
+      <p>Enter the club PIN to continue</p>
+      <input type="password" id="pin-input" maxlength="6" placeholder="·····"
+             autocomplete="off" inputmode="numeric" />
+      <p class="pin-error" id="pin-error" style="display:none">Incorrect PIN — try again</p>
+      <a class="stats-pill pill-olive" id="pin-btn" role="button" tabindex="0" style="cursor:pointer;">
+        Unlock
+        <span class="stats-pill-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Add book screen -->
+  <div id="form-screen" style="display:none">
+    <nav class="add-nav">
+      <a href="books.html">← All books</a>
+      <span class="add-nav-label">Add book</span>
+      <span></span>
+    </nav>
+
+    <header class="add-header">
+      <span class="page-eyebrow">book club admin</span>
+      <h1 class="page-title">Next Month's <em>Book</em></h1>
+      <div class="page-title-rule"><span>set current pick</span></div>
+    </header>
+
+    <section class="form-section" id="form-wrap">
+      <form id="add-book-form">
+        <div>
+          <label class="field-label" for="month">Reading month</label>
+          <input type="month" id="month" required />
+        </div>
+
+        <div>
+          <label class="field-label" for="title">Book title</label>
+          <input type="text" id="title" placeholder="e.g. Normal People" required autocomplete="off" />
+        </div>
+
+        <div>
+          <label class="field-label" for="author">Author</label>
+          <input type="text" id="author" placeholder="e.g. Sally Rooney" required autocomplete="off" />
+        </div>
+
+        <p class="cover-hint">Cover art will be fetched automatically from Google Books.</p>
+
+        <button type="submit">Set as Current Book</button>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // Pre-fill month with next month
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    document.getElementById('month').value = nextMonth.toISOString().slice(0, 7);
+
+    let unlockedPin = '';
+
+    const pinInput = document.getElementById('pin-input');
+    const pinBtn = document.getElementById('pin-btn');
+    const pinError = document.getElementById('pin-error');
+
+    async function attemptUnlock() {
+      const pin = pinInput.value.trim();
+      if (!pin) return;
+
+      // Validate PIN via server (wrong PIN → 403, right PIN + missing fields → 400)
+      try {
+        const res = await fetch('/api/add-book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin }),
+        });
+        if (res.status === 403) {
+          pinError.style.display = '';
+          pinInput.value = '';
+          pinInput.focus();
+        } else {
+          unlockedPin = pin;
+          document.getElementById('pin-screen').style.display = 'none';
+          document.getElementById('form-screen').style.display = '';
+        }
+      } catch {
+        // Network error — show form anyway, server will validate on submit
+        unlockedPin = pin;
+        document.getElementById('pin-screen').style.display = 'none';
+        document.getElementById('form-screen').style.display = '';
+      }
+    }
+
+    pinBtn.addEventListener('click', attemptUnlock);
+    pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
+
+    // Form submit
+    document.getElementById('add-book-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.textContent = 'Adding book…';
+      btn.disabled = true;
+
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const month = document.getElementById('month').value;
+
+      try {
+        const res = await fetch('/api/add-book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: unlockedPin, title, author, month }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          btn.textContent = 'Set as Current Book';
+          btn.disabled = false;
+          alert(data.error || 'Something went wrong. Please try again.');
+          return;
+        }
+
+        const coverUrl = data.book?.BookCover;
+        const displayMonth = month
+          ? new Date(`${month}-15`).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+          : '';
+
+        document.getElementById('form-wrap').innerHTML = `
+          <div class="add-success">
+            ${coverUrl
+              ? `<img src="${coverUrl}" alt="${title}" />`
+              : `<div class="cover-ph"></div>`}
+            <h3>${title}</h3>
+            <p class="success-sub">${author}${displayMonth ? ` · ${displayMonth}` : ''}</p>
+            <p class="success-note">${data.coverFound
+              ? 'Set as current pick ✓ Cover fetched automatically ✓'
+              : 'Set as current pick ✓ No cover found — you can add one in Airtable.'}</p>
+            <a href="books.html" class="stats-pill pill-olive">← Back to all books</a>
+          </div>
+        `;
+      } catch (err) {
+        console.error(err);
+        btn.textContent = 'Set as Current Book';
+        btn.disabled = false;
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>
