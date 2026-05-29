@@ -251,6 +251,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: JSON.stringify(payload),
       });
       if (res.ok) {
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 80, spread: 65, origin: { y: 0.75 }, colors: ['#6b2737', '#BB858B', '#D8A48F', '#6b4a27', '#EFEBCE'] });
+        }
         form.innerHTML = `<p class="form-success">Thank you — your thoughts have been saved.</p>`;
         setTimeout(loadBook, 800);
       } else {

@@ -29,7 +29,26 @@ function starsHTML(rating, size = "") {
   return html;
 }
 
+function showSkeletons() {
+  const container = document.getElementById("books-container");
+  if (!container) return;
+  const rows = Array(5).fill(0).map(() => `
+    <div class="book-row skeleton-row">
+      <div class="skeleton row-thumb-ph"></div>
+      <div class="row-info" style="gap:0.4rem;display:flex;flex-direction:column;justify-content:center;">
+        <div class="skeleton" style="height:13px;width:65%;border-radius:4px;"></div>
+        <div class="skeleton" style="height:11px;width:38%;border-radius:4px;margin-top:2px;"></div>
+      </div>
+    </div>`).join('');
+  container.innerHTML = `
+    <div class="skeleton-pick"></div>
+    <span class="section-label">Past reads</span>
+    <div class="books-list">${rows}</div>
+  `;
+}
+
 async function loadData() {
+  showSkeletons();
   try {
     const [booksRes, entriesRes] = await Promise.all([
       fetch('/api/books'),

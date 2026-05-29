@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TBR — Book Club</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon-maskable.svg">
+  <meta name="theme-color" content="#6b2737">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Book Club">
   <style>
     .tbr-nav {
       display: flex;
@@ -331,8 +337,21 @@
       toggle.classList.toggle('open', open);
     });
 
+    function showTBRSkeletons() {
+      const list = document.getElementById('tbr-list');
+      list.innerHTML = Array(4).fill(0).map(() => `
+        <div class="skeleton-tbr">
+          <div class="skeleton tbr-cover-ph"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;padding-top:4px;">
+            <div class="skeleton" style="height:13px;width:68%;border-radius:4px;"></div>
+            <div class="skeleton" style="height:11px;width:42%;border-radius:4px;"></div>
+          </div>
+        </div>`).join('');
+    }
+
     // Load TBR books
     async function loadTBR() {
+      showTBRSkeletons();
       const list = document.getElementById('tbr-list');
       try {
         const res = await fetch('/api/books');
@@ -406,6 +425,19 @@
     }
 
     function attachListeners() {
+      // Swipe right to vote
+      document.querySelectorAll('.tbr-item').forEach(item => {
+        let startX = 0;
+        item.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+        item.addEventListener('touchend', e => {
+          const dx = e.changedTouches[0].clientX - startX;
+          if (dx > 60) {
+            const btn = item.querySelector('.vote-btn');
+            if (btn && !btn.classList.contains('voted') && !btn.disabled) btn.click();
+          }
+        }, { passive: true });
+      });
+
       // Vote buttons
       document.querySelectorAll('.vote-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -594,5 +626,6 @@
 
     loadTBR();
   </script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
