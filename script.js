@@ -40,7 +40,7 @@ async function loadData() {
     const entriesData = await entriesRes.json();
     const entries = entriesData.records.map(r => r.fields);
 
-    allBooks = booksData.records.map(r => r.fields);
+    allBooks = booksData.records.map(r => r.fields).filter(b => !b.TBR);
 
     // Calculate average rating per book
     allBooks = allBooks.map(book => {

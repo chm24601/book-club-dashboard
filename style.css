@@ -171,6 +171,9 @@ a { color: inherit; text-decoration: none; }
 .pill-ai { background: #27556b; box-shadow: 0 2px 12px rgba(39,85,107,0.28); }
 .pill-ai:hover { background: #2d6280; box-shadow: 0 6px 18px rgba(39,85,107,0.35); color: #EFEBCE; }
 
+.pill-tbr { background: #6b4a27; box-shadow: 0 2px 12px rgba(107,74,39,0.28); }
+.pill-tbr:hover { background: #7d5830; box-shadow: 0 6px 18px rgba(107,74,39,0.35); color: #EFEBCE; }
+
 /* ── Controls ── */
 .controls {
   display: flex;
