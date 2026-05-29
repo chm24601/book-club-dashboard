@@ -3,14 +3,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const GEMINI_API_KEY = process.env.Google_Token;
+  const GROQ_KEY = process.env.GROQ_KEY;
   const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
 
-  if (!GEMINI_API_KEY) {
-    return res.status(500).json({
-      error: 'Gemini API key not configured. Add GEMINI_API_KEY to your Vercel environment variables.',
-    });
+  if (!GROQ_KEY) {
+    return res.status(500).json({ error: 'AI not configured — add GROQ_KEY to environment variables.' });
   }
 
   const { messages } = req.body || {};
@@ -77,42 +75,42 @@ When making predictions or recommendations, reference their actual history. Note
     systemPrompt = `You are a warm book advisor for "The Book Club for Difficult Women," a small book club with 4 members. Help with recommendations, predicting if they'll enjoy a book, and discussion potential.`;
   }
 
-  // Call Gemini 1.5 Flash
+  // Call Groq (OpenAI-compatible)
   try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: messages.map(m => ({
-            role: m.role,
-            parts: [{ text: m.content }],
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages.map(m => ({
+            role: m.role === 'model' ? 'assistant' : m.role,
+            content: m.content,
           })),
-          generationConfig: {
-            maxOutputTokens: 1000,
-            temperature: 0.85,
-          },
-        }),
-      }
-    );
+        ],
+        max_tokens: 1000,
+        temperature: 0.85,
+      }),
+    });
 
-    const data = await geminiRes.json();
-    if (!geminiRes.ok) {
-      console.error('Gemini error:', data);
-      const detail = data?.error?.message || data?.error?.status || JSON.stringify(data);
-      return res.status(500).json({ error: `Gemini error: ${detail}` });
+    const data = await groqRes.json();
+    if (!groqRes.ok) {
+      const detail = data?.error?.message || JSON.stringify(data);
+      return res.status(500).json({ error: `AI error: ${detail}` });
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = data.choices?.[0]?.message?.content;
     if (!text) {
       return res.status(500).json({ error: 'No response from AI' });
     }
 
     return res.status(200).json({ response: text });
   } catch (error) {
-    console.error('Gemini call failed:', error);
+    console.error('Groq call failed:', error);
     return res.status(500).json({ error: 'Failed to reach AI service' });
   }
 }
