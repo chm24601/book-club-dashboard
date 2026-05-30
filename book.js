@@ -124,7 +124,7 @@ function entryHTML(e) {
     <div class="entry-header">
       <span class="entry-name">${e.MemberName || "Anonymous"}</span>
       ${!isNaN(rating) && e.Rating ? starsHTML(rating, "0.875rem") : ""}
-      ${e.id ? `<button class="entry-edit-btn">Edit</button>` : ""}
+      ${e.id ? `<span class="entry-actions"><button class="entry-edit-btn">Edit</button><button class="entry-delete-btn" title="Delete">✕</button></span>` : ""}
     </div>
     ${e.Note ? `<p class="entry-note">${e.Note}</p>` : ""}
     ${e.Link ? `<a class="entry-link" href="${e.Link}" target="_blank" rel="noopener">↗ Link</a>` : ""}
@@ -150,6 +150,9 @@ function renderEntries(entries) {
 
   container.querySelectorAll(".entry-edit-btn").forEach(btn => {
     btn.addEventListener("click", () => openEditForm(btn.closest(".entry")));
+  });
+  container.querySelectorAll(".entry-delete-btn").forEach(btn => {
+    btn.addEventListener("click", () => deleteEntry(btn.closest(".entry")));
   });
 }
 
@@ -245,9 +248,9 @@ function openEditForm(entryEl) {
 
   entryEl.querySelector(".edit-cancel-btn").addEventListener("click", () => {
     const d = _entryData[id];
-    const r = Number(d.rating);
     entryEl.innerHTML = entryHTML({ id, MemberName: d.name, Note: d.note, Link: d.link, Rating: d.rating });
     entryEl.querySelector(".entry-edit-btn")?.addEventListener("click", () => openEditForm(entryEl));
+    entryEl.querySelector(".entry-delete-btn")?.addEventListener("click", () => deleteEntry(entryEl));
   });
 
   entryEl.querySelector(".edit-save-btn").addEventListener("click", async () => {
@@ -276,6 +279,7 @@ function openEditForm(entryEl) {
         _entryData[id] = { note: newNote, link: newLink, rating: newRating, name };
         entryEl.innerHTML = entryHTML({ id, MemberName: name, Note: newNote, Link: newLink, Rating: newRating });
         entryEl.querySelector(".entry-edit-btn")?.addEventListener("click", () => openEditForm(entryEl));
+        entryEl.querySelector(".entry-delete-btn")?.addEventListener("click", () => deleteEntry(entryEl));
       } else {
         errEl.textContent = "Something went wrong — try again.";
         saveBtn.textContent = "Save";
@@ -287,6 +291,55 @@ function openEditForm(entryEl) {
       saveBtn.disabled = false;
     }
   });
+}
+
+async function deleteEntry(entryEl) {
+  const id = entryEl.dataset.recordId;
+  if (!id) return;
+  const deleteBtn = entryEl.querySelector(".entry-delete-btn");
+
+  // First click: show confirm state
+  if (deleteBtn && deleteBtn.dataset.confirming !== "true") {
+    deleteBtn.dataset.confirming = "true";
+    deleteBtn.textContent = "Delete?";
+    deleteBtn.style.color = "#BB858B";
+    // Reset after 3s if no second click
+    setTimeout(() => {
+      if (deleteBtn.dataset.confirming === "true") {
+        deleteBtn.dataset.confirming = "";
+        deleteBtn.textContent = "✕";
+        deleteBtn.style.color = "";
+      }
+    }, 3000);
+    return;
+  }
+
+  // Second click: do it
+  if (deleteBtn) { deleteBtn.textContent = "…"; deleteBtn.disabled = true; }
+  try {
+    const res = await fetch("/api/delete-entry", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recordId: id }),
+    });
+    if (res.ok) {
+      entryEl.style.transition = "opacity 0.25s";
+      entryEl.style.opacity = "0";
+      setTimeout(() => {
+        entryEl.remove();
+        // Update count
+        const container = document.getElementById("entries-container");
+        const remaining = container?.querySelectorAll(".entry").length || 0;
+        const countEl = document.getElementById("entry-count");
+        if (countEl) countEl.textContent = remaining > 0 ? `${remaining} review${remaining !== 1 ? "s" : ""}` : "";
+        if (remaining === 0 && container) container.innerHTML = `<p class="no-entries">No reviews yet — be the first.</p>`;
+      }, 250);
+    } else {
+      if (deleteBtn) { deleteBtn.textContent = "✕"; deleteBtn.disabled = false; deleteBtn.dataset.confirming = ""; }
+    }
+  } catch {
+    if (deleteBtn) { deleteBtn.textContent = "✕"; deleteBtn.disabled = false; deleteBtn.dataset.confirming = ""; }
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

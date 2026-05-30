@@ -655,24 +655,29 @@ a { color: inherit; text-decoration: none; }
   body::before { background-size: 320px auto, 300px auto; }
 }
 
-/* ── Entry edit button ── */
-.entry-edit-btn {
+/* ── Entry action buttons (edit / delete) ── */
+.entry-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.entry-edit-btn,
+.entry-delete-btn {
   background: none;
   border: none;
   font-family: var(--f-body);
   font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--ink-3);
   cursor: pointer;
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
-  margin-left: auto;
   transition: color 0.15s, background 0.15s;
-  opacity: 0;
   flex-shrink: 0;
 }
-.entry:hover .entry-edit-btn { opacity: 1; }
 .entry-edit-btn:hover { color: var(--ink); background: rgba(30,30,16,0.07); }
+.entry-delete-btn:hover { color: #BB858B; background: rgba(187,133,139,0.1); }
 
 /* ── Inline edit form ── */
 .entry-edit-wrap {
