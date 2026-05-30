@@ -994,6 +994,56 @@ a { color: inherit; text-decoration: none; }
 .pill-tbr:hover   { box-shadow: 0 8px 22px rgba(107,74,39,0.38); }
 .pill-recap:hover { box-shadow: 0 8px 22px rgba(74,58,107,0.38); }
 
+/* ── Blurred cover hero — book detail page ── */
+.book-hero {
+  position: relative;
+  overflow: hidden;
+  background: #1e1a14; /* dark fallback when no cover */
+}
+.book-hero-blur {
+  position: absolute;
+  inset: -40px;
+  background-size: cover;
+  background-position: center 20%;
+  filter: blur(38px) saturate(1.7) brightness(0.36);
+  transform: scale(1.12);
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.book-hero.has-cover .book-hero-blur { opacity: 1; }
+
+/* Nav and book container float above the blur */
+.book-hero .book-nav  { position: relative; z-index: 2; }
+.book-hero #book-container { position: relative; z-index: 2; }
+
+/* Book detail card on blurred bg — slight transparency so cover color bleeds in */
+.book-hero .book-detail {
+  background: rgba(239,235,206,0.93);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* ── Blurred cover — current pick home card ── */
+.pick-blur {
+  position: absolute;
+  inset: -20px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(28px) saturate(1.55) brightness(0.44);
+  transform: scale(1.12);
+  z-index: 0;
+}
+/* Overlay gradient stays above the blur */
+.current-pick::before { z-index: 1; }
+/* Content sits above everything */
+.current-pick .pick-cover,
+.current-pick .pick-cover-ph,
+.current-pick .pick-info {
+  position: relative;
+  z-index: 2;
+}
+
 /* ── Skeleton loading ── */
 @keyframes shimmer {
   0%   { background-position: -400% 0; }

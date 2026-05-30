@@ -169,6 +169,7 @@ function renderBooks(books) {
     wrap.setAttribute("role", "link");
     wrap.setAttribute("tabindex", "0");
     wrap.innerHTML = `
+      ${currentBook.BookCover ? `<div class="pick-blur" style="background-image:url('${currentBook.BookCover}')"></div>` : ''}
       ${coverImg(currentBook, "pick-cover", "pick-cover-ph")}
       <div class="pick-info">
         <div class="pick-badge">Current pick</div>

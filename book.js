@@ -101,6 +101,14 @@ function renderBook(book, avg) {
   const container = document.getElementById("book-container");
   if (!container) return;
   document.title = `${book.Title} — Book Club`;
+
+  // Blurred cover hero
+  const heroEl  = document.getElementById("book-hero");
+  const heroBlur = document.getElementById("book-hero-blur");
+  if (heroBlur && book.BookCover) {
+    heroBlur.style.backgroundImage = `url('${book.BookCover}')`;
+    heroEl?.classList.add("has-cover");
+  }
   container.innerHTML = `
     <div class="book-detail">
       ${coverImg(book, "detail-cover", "detail-cover-ph", "178px")}
