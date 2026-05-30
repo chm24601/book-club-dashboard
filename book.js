@@ -1,3 +1,6 @@
+// Store entry data keyed by record id (avoids encoding headaches with data-attrs)
+const _entryData = {};
+
 function getSlugFromURL() {
   return new URLSearchParams(window.location.search).get("slug");
 }
@@ -41,7 +44,7 @@ async function loadBook() {
     const entriesData = await entriesRes.json();
 
     let books = booksData.records.map(r => r.fields);
-    const entries = entriesData.records.map(r => r.fields);
+    const entries = entriesData.records.map(r => ({ id: r.id, ...r.fields }));
 
     books.sort((a, b) => new Date(b["Date Read"] || 0) - new Date(a["Date Read"] || 0));
 
@@ -115,6 +118,19 @@ function renderBook(book, avg) {
   `;
 }
 
+function entryHTML(e) {
+  const rating = Number(e.Rating);
+  return `
+    <div class="entry-header">
+      <span class="entry-name">${e.MemberName || "Anonymous"}</span>
+      ${!isNaN(rating) && e.Rating ? starsHTML(rating, "0.875rem") : ""}
+      ${e.id ? `<button class="entry-edit-btn">Edit</button>` : ""}
+    </div>
+    ${e.Note ? `<p class="entry-note">${e.Note}</p>` : ""}
+    ${e.Link ? `<a class="entry-link" href="${e.Link}" target="_blank" rel="noopener">↗ Link</a>` : ""}
+  `;
+}
+
 function renderEntries(entries) {
   const container = document.getElementById("entries-container");
   const countEl = document.getElementById("entry-count");
@@ -124,67 +140,57 @@ function renderEntries(entries) {
     container.innerHTML = `<p class="no-entries">No reviews yet — be the first.</p>`;
     return;
   }
+
   container.innerHTML = entries.map(e => {
-    const rating = Number(e.Rating);
-    return `
-      <div class="entry">
-        <div class="entry-header">
-          <span class="entry-name">${e.MemberName || "Anonymous"}</span>
-          ${!isNaN(rating) ? starsHTML(rating, "0.875rem") : ""}
-        </div>
-        ${e.Note ? `<p class="entry-note">${e.Note}</p>` : ""}
-        ${e.Link ? `<a class="entry-link" href="${e.Link}" target="_blank" rel="noopener">↗ Link</a>` : ""}
-      </div>
-    `;
+    if (e.id) {
+      _entryData[e.id] = { note: e.Note || "", link: e.Link || "", rating: e.Rating || "", name: e.MemberName || "Anonymous" };
+    }
+    return `<div class="entry" data-record-id="${e.id || ""}">${entryHTML(e)}</div>`;
   }).join("");
+
+  container.querySelectorAll(".entry-edit-btn").forEach(btn => {
+    btn.addEventListener("click", () => openEditForm(btn.closest(".entry")));
+  });
 }
 
-function initStarPicker() {
-  const picker = document.getElementById("star-picker");
-  const input = document.getElementById("rating");
-  const label = document.getElementById("star-value-label");
+function initStarPickerEl(picker, input, label, initialRating = 0) {
   if (!picker) return;
-
   const stars = picker.querySelectorAll(".star-pick");
-  let currentRating = 0;
+  let currentRating = initialRating;
   const labels = { 0.5:"½", 1:"1", 1.5:"1½", 2:"2", 2.5:"2½", 3:"3", 3.5:"3½", 4:"4", 4.5:"4½", 5:"5" };
 
   function getRating(clientX, star) {
     const rect = star.getBoundingClientRect();
     return (clientX - rect.left) < rect.width / 2 ? parseInt(star.dataset.value) - 0.5 : parseInt(star.dataset.value);
   }
-
   function paintStars(rating) {
     stars.forEach(star => {
       const val = parseInt(star.dataset.value);
-      star.classList.remove("full", "half", "hovered");
+      star.classList.remove("full", "half");
       if (rating >= val) star.classList.add("full");
       else if (rating >= val - 0.5) star.classList.add("half");
     });
   }
+  if (currentRating) paintStars(currentRating);
 
   picker.addEventListener("mousemove", e => {
     const star = e.target.closest(".star-pick");
     if (!star) return;
     paintStars(getRating(e.clientX, star));
-    label.textContent = labels[getRating(e.clientX, star)] || "";
-    star.classList.add("hovered");
+    if (label) label.textContent = labels[getRating(e.clientX, star)] || "";
   });
-
   picker.addEventListener("mouseleave", () => {
     paintStars(currentRating);
-    label.textContent = currentRating ? labels[currentRating] : "";
+    if (label) label.textContent = currentRating ? labels[currentRating] : "";
   });
-
   picker.addEventListener("click", e => {
     const star = e.target.closest(".star-pick");
     if (!star) return;
     currentRating = getRating(e.clientX, star);
     input.value = currentRating;
     paintStars(currentRating);
-    label.textContent = labels[currentRating] || "";
+    if (label) label.textContent = labels[currentRating] || "";
   });
-
   picker.addEventListener("touchend", e => {
     e.preventDefault();
     const touch = e.changedTouches[0];
@@ -193,7 +199,93 @@ function initStarPicker() {
     currentRating = getRating(touch.clientX, star);
     input.value = currentRating;
     paintStars(currentRating);
-    label.textContent = labels[currentRating] || "";
+    if (label) label.textContent = labels[currentRating] || "";
+  });
+}
+
+function initStarPicker() {
+  const picker = document.getElementById("star-picker");
+  const input = document.getElementById("rating");
+  const label = document.getElementById("star-value-label");
+  if (!picker) return;
+  initStarPickerEl(picker, input, label, 0);
+}
+
+function openEditForm(entryEl) {
+  const id = entryEl.dataset.recordId;
+  if (!id || !_entryData[id]) return;
+  const { note, link, rating, name } = _entryData[id];
+
+  const starPips = [1,2,3,4,5].map(v => `<span class="star-pick" data-value="${v}">★</span>`).join("");
+
+  entryEl.innerHTML = `
+    <div class="entry-edit-wrap">
+      <div class="entry-name" style="margin-bottom:0.75rem;">${name}</div>
+      <div class="edit-stars-row">
+        <div class="star-picker edit-star-picker">${starPips}</div>
+        <span class="edit-star-label"></span>
+        <input type="hidden" class="edit-rating-input" value="${rating}" />
+      </div>
+      <textarea class="edit-note-input" rows="3" placeholder="Notes, reactions, a quote…">${note}</textarea>
+      <input type="text" class="edit-link-input" placeholder="Link to an article, review, or resource…" value="${link}" />
+      <div class="edit-actions">
+        <button class="edit-save-btn">Save</button>
+        <button class="edit-cancel-btn">Cancel</button>
+        <span class="edit-error"></span>
+      </div>
+    </div>
+  `;
+
+  initStarPickerEl(
+    entryEl.querySelector(".edit-star-picker"),
+    entryEl.querySelector(".edit-rating-input"),
+    entryEl.querySelector(".edit-star-label"),
+    rating ? Number(rating) : 0
+  );
+
+  entryEl.querySelector(".edit-cancel-btn").addEventListener("click", () => {
+    const d = _entryData[id];
+    const r = Number(d.rating);
+    entryEl.innerHTML = entryHTML({ id, MemberName: d.name, Note: d.note, Link: d.link, Rating: d.rating });
+    entryEl.querySelector(".entry-edit-btn")?.addEventListener("click", () => openEditForm(entryEl));
+  });
+
+  entryEl.querySelector(".edit-save-btn").addEventListener("click", async () => {
+    const newNote = entryEl.querySelector(".edit-note-input").value.trim();
+    const newLink = entryEl.querySelector(".edit-link-input").value.trim();
+    const newRating = entryEl.querySelector(".edit-rating-input").value;
+    const errEl = entryEl.querySelector(".edit-error");
+    const saveBtn = entryEl.querySelector(".edit-save-btn");
+
+    if (!newNote && !newLink && !newRating) {
+      errEl.textContent = "Add a note, link, or rating.";
+      return;
+    }
+
+    saveBtn.textContent = "Saving…";
+    saveBtn.disabled = true;
+    errEl.textContent = "";
+
+    try {
+      const res = await fetch("/api/edit-entry", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recordId: id, note: newNote, link: newLink, rating: newRating || null }),
+      });
+      if (res.ok) {
+        _entryData[id] = { note: newNote, link: newLink, rating: newRating, name };
+        entryEl.innerHTML = entryHTML({ id, MemberName: name, Note: newNote, Link: newLink, Rating: newRating });
+        entryEl.querySelector(".entry-edit-btn")?.addEventListener("click", () => openEditForm(entryEl));
+      } else {
+        errEl.textContent = "Something went wrong — try again.";
+        saveBtn.textContent = "Save";
+        saveBtn.disabled = false;
+      }
+    } catch {
+      errEl.textContent = "Connection error.";
+      saveBtn.textContent = "Save";
+      saveBtn.disabled = false;
+    }
   });
 }
 

@@ -655,6 +655,111 @@ a { color: inherit; text-decoration: none; }
   body::before { background-size: 320px auto, 300px auto; }
 }
 
+/* ── Entry edit button ── */
+.entry-edit-btn {
+  background: none;
+  border: none;
+  font-family: var(--f-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  margin-left: auto;
+  transition: color 0.15s, background 0.15s;
+  opacity: 0;
+  flex-shrink: 0;
+}
+.entry:hover .entry-edit-btn { opacity: 1; }
+.entry-edit-btn:hover { color: var(--ink); background: rgba(30,30,16,0.07); }
+
+/* ── Inline edit form ── */
+.entry-edit-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.edit-stars-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.edit-star-picker {
+  display: flex;
+  gap: 2px;
+  cursor: pointer;
+}
+.edit-star-picker .star-pick {
+  font-size: 1.2rem;
+  color: var(--line-mid);
+  transition: color 0.1s;
+  line-height: 1;
+  user-select: none;
+}
+.edit-star-picker .star-pick.full { color: var(--gold); }
+.edit-star-picker .star-pick.half { color: var(--gold-dim); }
+.edit-star-label {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  min-width: 1.5rem;
+}
+.edit-note-input,
+.edit-link-input {
+  font-family: var(--f-body);
+  font-size: 0.875rem;
+  color: var(--ink);
+  background: rgba(30,30,16,0.04);
+  border: 0.5px solid var(--line-mid);
+  border-radius: var(--r-sm);
+  padding: 0.5rem 0.625rem;
+  width: 100%;
+  resize: vertical;
+  line-height: 1.5;
+}
+.edit-note-input:focus,
+.edit-link-input:focus {
+  outline: none;
+  border-color: var(--ink-2);
+}
+.edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.edit-save-btn {
+  background: var(--burgundy);
+  color: #EFEBCE;
+  border: none;
+  border-radius: var(--r-lg);
+  padding: 0.4rem 0.875rem;
+  font-family: var(--f-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.edit-save-btn:hover { background: #7d2d40; }
+.edit-save-btn:disabled { opacity: 0.6; cursor: default; }
+.edit-cancel-btn {
+  background: none;
+  border: none;
+  font-family: var(--f-body);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  cursor: pointer;
+  padding: 0.4rem 0;
+  transition: color 0.15s;
+}
+.edit-cancel-btn:hover { color: var(--ink); }
+.edit-error {
+  font-family: var(--f-body);
+  font-size: 0.75rem;
+  color: #BB858B;
+  font-style: italic;
+  margin-left: auto;
+}
+
 /* ── Skeleton loading ── */
 @keyframes shimmer {
   0%   { background-position: -400% 0; }
