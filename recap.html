@@ -9,23 +9,24 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/icon.svg">
   <link rel="apple-touch-icon" href="/icon-maskable.svg">
-  <meta name="theme-color" content="#0e0b08">
+  <meta name="theme-color" content="#17130a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Book Club">
   <style>
-    /* ── Override global bg + hide botanical pattern ── */
-    body { background: #0e0b08 !important; }
-    body::before { display: none !important; }
+    /* ── Override global bg — warm dark, not cold black ── */
+    body { background: #17130a !important; }
+    /* Let the botanical pattern show through at reduced opacity */
+    body::before { opacity: 0.1 !important; }
 
     /* ── Sticky frosted nav ── */
     .recap-nav {
       position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
       padding: 1rem 1.25rem;
-      background: rgba(14,11,8,0.82);
+      background: rgba(23,19,10,0.88);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border-bottom: 0.5px solid rgba(239,235,206,0.06);
+      border-bottom: 0.5px solid rgba(239,235,206,0.08);
     }
     .recap-nav a {
       font-family: var(--f-body); font-size: 0.82rem;
@@ -43,15 +44,15 @@
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       padding: 4rem 1.5rem 3rem;
-      background: linear-gradient(155deg, #2a0d18 0%, #1a0a22 48%, #0e0b08 100%);
+      background: linear-gradient(155deg, #2d1018 0%, #1e1a0a 48%, #17130a 100%);
       position: relative; overflow: hidden; text-align: center;
     }
     .recap-hero::before {
       content: '';
       position: absolute; inset: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse at 22% 38%, rgba(107,39,55,0.48) 0%, transparent 52%),
-        radial-gradient(ellipse at 78% 65%, rgba(74,58,107,0.38) 0%, transparent 52%);
+        radial-gradient(ellipse at 22% 38%, rgba(107,39,55,0.42) 0%, transparent 55%),
+        radial-gradient(ellipse at 78% 65%, rgba(92,107,39,0.22) 0%, transparent 55%);
     }
     .hero-eyebrow {
       font-family: var(--f-body); font-size: 0.6rem;
@@ -120,12 +121,12 @@
       font-style: italic; position: relative; z-index: 1;
     }
 
-    /* Panel colour themes */
-    .panel-burgundy { background: linear-gradient(155deg, #2d0f1a 0%, #180810 100%); }
+    /* Panel colour themes — warm darks from the site palette */
+    .panel-burgundy { background: linear-gradient(155deg, #2d0f1a 0%, #1a0a0f 100%); }
     .panel-burgundy .panel-num { color: #BB858B; }
 
-    .panel-olive { background: linear-gradient(155deg, #0d1a08 0%, #07100a 100%); }
-    .panel-olive .panel-num { color: #a8c46b; }
+    .panel-olive { background: linear-gradient(155deg, #1a220a 0%, #101608 100%); }
+    .panel-olive .panel-num { color: #b8c87a; }
 
     /* ── Featured book panels ── */
     .panel-book {
@@ -134,20 +135,20 @@
       align-items: center; justify-content: flex-end;
       padding: 0 1.75rem 4.5rem;
       position: relative; overflow: hidden; text-align: center;
-      background: #0e0b08;
+      background: #17130a;
     }
     .panel-book-blur {
       position: absolute; inset: -40px;
       background-size: cover; background-position: center;
-      filter: blur(34px) saturate(1.9) brightness(0.3);
+      filter: blur(34px) saturate(1.6) brightness(0.32);
       transform: scale(1.12); z-index: 0;
     }
     .panel-book-overlay {
       position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(to bottom,
-        rgba(0,0,0,0.08) 0%,
-        rgba(0,0,0,0.52) 50%,
-        rgba(0,0,0,0.88) 100%);
+        rgba(18,12,6,0.1) 0%,
+        rgba(18,12,6,0.55) 50%,
+        rgba(18,12,6,0.9) 100%);
     }
     .panel-book-cover {
       width: 120px; border-radius: 10px;
@@ -187,7 +188,7 @@
 
     /* ── Month chart ── */
     .panel-months {
-      background: linear-gradient(155deg, #090d18 0%, #06080f 100%);
+      background: linear-gradient(155deg, #1e1a0a 0%, #17130a 100%);
       padding: 4.5rem 2rem 5rem; text-align: left;
     }
     .month-chart-title {
@@ -219,7 +220,7 @@
 
     /* ── Member panel ── */
     .panel-members {
-      background: #0e0b08;
+      background: #17130a;
       padding: 4.5rem 1.25rem 5.5rem; text-align: center;
     }
     .members-title {
@@ -275,7 +276,7 @@
 
     /* ── Footer ── */
     .recap-footer {
-      background: #0e0b08; padding: 2rem 1.25rem 4rem;
+      background: #17130a; padding: 2rem 1.25rem 4rem;
       text-align: center;
       border-top: 0.5px solid rgba(239,235,206,0.05);
     }
@@ -418,7 +419,7 @@
 
       const bookPanel = (book, eyebrow, detail) => `
         <div class="panel-book">
-          <div class="panel-book-blur" style="background-image:url('${book.BookCover || ''}');background-color:#1a0a12"></div>
+          <div class="panel-book-blur" style="background-image:url('${book.BookCover || ''}');background-color:#2d1018"></div>
           <div class="panel-book-overlay"></div>
           <p class="panel-book-eyebrow">${eyebrow}</p>
           ${book.BookCover
