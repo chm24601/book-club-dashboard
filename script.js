@@ -1,5 +1,27 @@
 let allBooks = [];
+let allEntries = [];
 let filteredBooks = [];
+
+const MEMBER_COLORS = {
+  Courtney: '#6b2737', Emily: '#5c6b27',
+  Alyssa: '#27556b', Sam: '#6b4a27'
+};
+
+function reviewerBubblesHTML(book) {
+  const slug = normalize(book?.Slug || book?.Title || '');
+  const reviewers = [...new Set(
+    allEntries
+      .filter(e => e?.BookSlug && normalize(e.BookSlug) === slug)
+      .map(e => e.MemberName)
+      .filter(Boolean)
+  )];
+  if (!reviewers.length) return '';
+  const pips = reviewers.map(name => {
+    const bg = MEMBER_COLORS[name] || '#8a8a6a';
+    return `<span class="reviewer-bubble" style="background:${bg}" title="${name}">${name[0]}</span>`;
+  }).join('');
+  return `<span class="reviewer-bubbles">${pips}</span>`;
+}
 
 function normalize(str) {
   return str?.toLowerCase().trim() || "";
@@ -58,6 +80,7 @@ async function loadData() {
     const booksData = await booksRes.json();
     const entriesData = await entriesRes.json();
     const entries = entriesData.records.map(r => r.fields);
+    allEntries = entries;
 
     allBooks = booksData.records.map(r => r.fields).filter(b => !b.TBR);
 
@@ -148,6 +171,7 @@ function renderBooks(books) {
         <div class="pick-author">${currentBook.Author}</div>
         ${currentBook.AverageRating ? starsHTML(currentBook.AverageRating) : ""}
         ${currentBook["GoodreadsRating"] ? `<div class="pick-gr">Goodreads ${currentBook["GoodreadsRating"]}</div>` : ""}
+        ${reviewerBubblesHTML(currentBook)}
       </div>
     `;
     wrap.addEventListener("click", () => { window.location.href = `book.html?slug=${slug}`; });
@@ -178,6 +202,7 @@ function renderBooks(books) {
         <div class="row-meta">
           ${book.AverageRating ? starsHTML(book.AverageRating) : ""}
           ${book["Date Read"] ? `<span class="row-date">${formatDate(book["Date Read"])}</span>` : ""}
+          ${reviewerBubblesHTML(book)}
         </div>
       </div>
       <span class="row-chevron">›</span>

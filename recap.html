@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Year Recap — Book Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon-maskable.svg">
+  <meta name="theme-color" content="#6b2737">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Book Club">
+  <style>
+    .recap-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 0.5px solid rgba(58,58,40,0.15);
+    }
+    .recap-nav a {
+      font-family: var(--f-body); font-size: 0.8rem;
+      color: var(--ink-2); letter-spacing: 0.04em;
+    }
+    .recap-nav a:hover { color: var(--gold); }
+    .recap-nav-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-3); }
+
+    .recap-header { padding: 2.5rem 1.25rem 1.5rem; border-bottom: 0.5px solid rgba(58,58,40,0.15); }
+
+    .year-switcher {
+      display: flex; align-items: center; gap: 1rem; margin-top: 1rem;
+    }
+    .year-btn {
+      background: none; border: 0.5px solid var(--line-mid);
+      border-radius: 100px; padding: 0.3rem 0.75rem;
+      font-family: var(--f-body); font-size: 0.78rem;
+      color: var(--ink-2); cursor: pointer; transition: all 0.15s;
+    }
+    .year-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+    .year-btn:disabled { opacity: 0.3; cursor: default; }
+    .year-display {
+      font-family: var(--f-display); font-size: 1.25rem;
+      font-style: italic; color: var(--ink); min-width: 4rem; text-align: center;
+    }
+
+    /* Stat grid */
+    .stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.75rem; padding: 1.25rem;
+    }
+    .stat-card {
+      background: var(--bg-card); border-radius: var(--r-xl);
+      padding: 1.25rem 1rem; text-align: center;
+      border: 0.5px solid var(--line);
+    }
+    .stat-card.wide { grid-column: 1 / -1; }
+    .stat-num {
+      font-family: var(--f-display); font-size: 2.75rem;
+      color: var(--burgundy); line-height: 1; margin-bottom: 0.25rem;
+    }
+    .stat-label {
+      font-family: var(--f-body); font-size: 0.75rem;
+      color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* Highlight sections */
+    .highlight-section {
+      margin: 0 1.25rem 1.25rem;
+      background: var(--bg-card); border-radius: var(--r-xl);
+      border: 0.5px solid var(--line); overflow: hidden;
+    }
+    .highlight-label {
+      font-family: var(--f-body); font-size: 0.65rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ink-3); padding: 1rem 1.25rem 0.5rem;
+    }
+    .highlight-book {
+      display: flex; align-items: center; gap: 0.875rem;
+      padding: 0.75rem 1.25rem 1.25rem;
+    }
+    .highlight-cover {
+      width: 44px; min-width: 44px; height: 64px;
+      border-radius: var(--r-sm); object-fit: cover;
+      border: 0.5px solid var(--line);
+    }
+    .highlight-cover-ph {
+      width: 44px; min-width: 44px; height: 64px;
+      border-radius: var(--r-sm);
+      background: linear-gradient(155deg, #D8A48F, #c4907a);
+    }
+    .highlight-title {
+      font-family: var(--f-display); font-size: 1rem; color: var(--ink);
+    }
+    .highlight-author {
+      font-family: var(--f-body); font-size: 0.8rem;
+      color: var(--ink-3); font-style: italic; margin-top: 0.15rem;
+    }
+    .highlight-detail {
+      font-family: var(--f-body); font-size: 0.8rem;
+      color: var(--ink-2); margin-top: 0.3rem;
+    }
+
+    /* Member activity */
+    .member-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.75rem; padding: 0 1.25rem 1.25rem;
+    }
+    .member-card {
+      background: var(--bg-card); border-radius: var(--r-xl);
+      border: 0.5px solid var(--line); padding: 1rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    }
+    .member-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--f-display); font-size: 1rem; color: #EFEBCE;
+    }
+    .member-name {
+      font-family: var(--f-display); font-size: 0.875rem; color: var(--ink);
+    }
+    .member-stat {
+      font-family: var(--f-body); font-size: 0.72rem;
+      color: var(--ink-3); text-align: center;
+    }
+
+    /* Month bars */
+    .month-section {
+      margin: 0 1.25rem 1.25rem;
+      background: var(--bg-card); border-radius: var(--r-xl);
+      border: 0.5px solid var(--line); padding: 1rem 1.25rem;
+    }
+    .month-section .highlight-label { padding: 0 0 0.75rem; }
+    .month-bars { display: flex; flex-direction: column; gap: 0.5rem; }
+    .month-row { display: flex; align-items: center; gap: 0.625rem; }
+    .month-name {
+      font-family: var(--f-body); font-size: 0.72rem;
+      color: var(--ink-3); width: 2.5rem; flex-shrink: 0;
+    }
+    .month-bar-wrap { flex: 1; background: var(--line); border-radius: 100px; height: 8px; }
+    .month-bar { height: 8px; border-radius: 100px; background: var(--burgundy); transition: width 0.5s ease; }
+    .month-count {
+      font-family: var(--f-display); font-size: 0.8rem;
+      color: var(--ink-2); min-width: 1.5rem; text-align: right;
+    }
+
+    .recap-empty {
+      padding: 3rem 1.25rem; text-align: center;
+      font-family: var(--f-body); font-size: 0.9rem;
+      color: var(--ink-3); font-style: italic;
+    }
+
+    .recap-section-title {
+      font-family: var(--f-body); font-size: 0.65rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ink-3); padding: 0 1.25rem 0.625rem;
+    }
+
+    @media (min-width: 640px) {
+      .recap-header { padding: 3rem 2rem 2rem; }
+      .recap-nav { padding: 1rem 2rem; }
+      .stat-grid, .highlight-section, .member-grid, .month-section, .recap-section-title {
+        margin-left: 2rem; margin-right: 2rem;
+        padding-left: 2rem; padding-right: 2rem;
+      }
+      .stat-grid { padding: 1.25rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="recap-nav">
+    <a href="books.html">← All books</a>
+    <span class="recap-nav-label">Year Recap</span>
+    <span></span>
+  </nav>
+
+  <header class="recap-header">
+    <span class="page-eyebrow">the year in books</span>
+    <h1 class="page-title">Year in <em>Review</em></h1>
+    <div class="year-switcher">
+      <button class="year-btn" id="prev-year">←</button>
+      <span class="year-display" id="year-display">—</span>
+      <button class="year-btn" id="next-year">→</button>
+    </div>
+  </header>
+
+  <div id="recap-content">
+    <p class="recap-empty">Loading…</p>
+  </div>
+
+  <script>
+    const MEMBER_COLORS = { Courtney: '#6b2737', Emily: '#5c6b27', Alyssa: '#27556b', Sam: '#6b4a27' };
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function normalize(s) { return s?.toLowerCase().trim() || ''; }
+    function starsText(r) { return r ? '★'.repeat(Math.round(r)) : ''; }
+
+    let allBooks = [], allEntries = [], currentYear = new Date().getFullYear() - 1;
+    let availableYears = [];
+
+    async function loadData() {
+      const [booksRes, entriesRes] = await Promise.all([fetch('/api/books'), fetch('/api/entries')]);
+      const booksData = await booksRes.json();
+      const entriesData = await entriesRes.json();
+      allBooks = booksData.records.map(r => r.fields).filter(b => !b.TBR && b['Date Read']);
+      allEntries = entriesData.records.map(r => r.fields);
+
+      availableYears = [...new Set(allBooks.map(b => new Date(b['Date Read']).getFullYear()))].sort((a,b) => a - b);
+      if (!availableYears.includes(currentYear)) currentYear = availableYears[availableYears.length - 1] || new Date().getFullYear();
+
+      renderYear();
+    }
+
+    function renderYear() {
+      document.getElementById('year-display').textContent = currentYear;
+      document.getElementById('prev-year').disabled = currentYear <= availableYears[0];
+      document.getElementById('next-year').disabled = currentYear >= availableYears[availableYears.length - 1];
+
+      const books = allBooks.filter(b => new Date(b['Date Read']).getFullYear() === currentYear);
+
+      if (books.length === 0) {
+        document.getElementById('recap-content').innerHTML = `<p class="recap-empty">No books logged for ${currentYear} yet.</p>`;
+        return;
+      }
+
+      // Compute stats per book
+      const booksWithStats = books.map(book => {
+        const slug = normalize(book.Slug || book.Title);
+        const entries = allEntries.filter(e => e.BookSlug && normalize(e.BookSlug) === slug);
+        const ratings = entries.map(e => Number(e.Rating)).filter(r => !isNaN(r) && r > 0);
+        const avg = ratings.length ? ratings.reduce((a,b)=>a+b,0)/ratings.length : null;
+        const variance = ratings.length >= 2
+          ? ratings.reduce((sum, r) => sum + Math.pow(r - avg, 2), 0) / ratings.length : 0;
+        return { ...book, entries, ratings, avg, variance };
+      });
+
+      const totalReviews = booksWithStats.reduce((s, b) => s + b.entries.length, 0);
+
+      const highestRated = [...booksWithStats].filter(b => b.avg !== null).sort((a,b) => b.avg - a.avg)[0];
+      const mostReviewed = [...booksWithStats].sort((a,b) => b.entries.length - a.entries.length)[0];
+      const mostDivisive = [...booksWithStats].filter(b => b.ratings.length >= 2).sort((a,b) => b.variance - a.variance)[0];
+
+      // Member activity
+      const memberMap = {};
+      booksWithStats.forEach(book => {
+        book.entries.forEach(e => {
+          if (!e.MemberName) return;
+          if (!memberMap[e.MemberName]) memberMap[e.MemberName] = { reviews: 0, ratings: [] };
+          memberMap[e.MemberName].reviews++;
+          const r = Number(e.Rating);
+          if (!isNaN(r) && r > 0) memberMap[e.MemberName].ratings.push(r);
+        });
+      });
+
+      // Books by month
+      const monthCounts = Array(12).fill(0);
+      books.forEach(b => { monthCounts[new Date(b['Date Read']).getMonth()]++; });
+      const maxMonthCount = Math.max(...monthCounts, 1);
+
+      const covImg = (book, cls, phCls) => book.BookCover
+        ? `<img src="${book.BookCover}" alt="${book.Title}" class="${cls}" />`
+        : `<div class="${phCls}"></div>`;
+
+      const highlightBookHTML = (book, detail) => book ? `
+        <div class="highlight-book">
+          ${covImg(book, 'highlight-cover', 'highlight-cover-ph')}
+          <div>
+            <div class="highlight-title">${book.Title}</div>
+            <div class="highlight-author">${book.Author}</div>
+            <div class="highlight-detail">${detail}</div>
+          </div>
+        </div>` : `<p class="recap-empty" style="padding:1rem 1.25rem">Not enough data yet.</p>`;
+
+      document.getElementById('recap-content').innerHTML = `
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-num">${books.length}</div>
+            <div class="stat-label">books read</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${totalReviews}</div>
+            <div class="stat-label">reviews</div>
+          </div>
+        </div>
+
+        ${highestRated ? `
+        <div class="highlight-section">
+          <div class="highlight-label">Highest rated</div>
+          ${highlightBookHTML(highestRated, `${highestRated.avg.toFixed(1)} ★ club average`)}
+        </div>` : ''}
+
+        ${mostReviewed && mostReviewed.entries.length > 1 ? `
+        <div class="highlight-section">
+          <div class="highlight-label">Most talked about</div>
+          ${highlightBookHTML(mostReviewed, `${mostReviewed.entries.length} reviews`)}
+        </div>` : ''}
+
+        ${mostDivisive ? `
+        <div class="highlight-section">
+          <div class="highlight-label">Most divisive</div>
+          ${highlightBookHTML(mostDivisive, `Ratings ranged from ${Math.min(...mostDivisive.ratings)} to ${Math.max(...mostDivisive.ratings)}`)}
+        </div>` : ''}
+
+        <div class="month-section">
+          <div class="highlight-label">Books by month</div>
+          <div class="month-bars">
+            ${monthCounts.map((count, i) => count > 0 ? `
+              <div class="month-row">
+                <span class="month-name">${MONTHS[i]}</span>
+                <div class="month-bar-wrap"><div class="month-bar" style="width:${Math.round(count/maxMonthCount*100)}%"></div></div>
+                <span class="month-count">${count}</span>
+              </div>` : '').join('')}
+          </div>
+        </div>
+
+        <div class="recap-section-title">By the members</div>
+        <div class="member-grid">
+          ${Object.entries(memberMap).map(([name, data]) => {
+            const avgGiven = data.ratings.length ? (data.ratings.reduce((a,b)=>a+b,0)/data.ratings.length).toFixed(1) : null;
+            const color = MEMBER_COLORS[name] || '#8a8a6a';
+            return `
+              <div class="member-card">
+                <div class="member-avatar" style="background:${color}">${name[0]}</div>
+                <div class="member-name">${name}</div>
+                <div class="member-stat">${data.reviews} review${data.reviews !== 1 ? 's' : ''}${avgGiven ? ` · avg ${avgGiven} ★` : ''}</div>
+              </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    document.getElementById('prev-year').addEventListener('click', () => {
+      currentYear--; renderYear();
+    });
+    document.getElementById('next-year').addEventListener('click', () => {
+      currentYear++; renderYear();
+    });
+
+    loadData();
+  </script>
+  <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>

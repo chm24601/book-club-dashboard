@@ -115,11 +115,87 @@ function renderBook(book, avg) {
         </div>
       </div>
     </div>
+    ${book.Current ? `
+      <div class="discussion-wrap">
+        <button class="discussion-btn" id="discussion-btn">✦ Discussion Questions</button>
+        <div class="discussion-output" id="discussion-output"></div>
+      </div>` : ''}
   `;
+  if (book.Current) initDiscussionQuestions(book);
 }
+
+function initDiscussionQuestions(book) {
+  const btn = document.getElementById("discussion-btn");
+  const output = document.getElementById("discussion-output");
+  if (!btn || !output) return;
+  btn.addEventListener("click", async () => {
+    if (btn.dataset.loading) return;
+    btn.dataset.loading = "true";
+    btn.textContent = "Generating…";
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{
+            role: "user",
+            content: `Generate 5 thoughtful book club discussion questions for "${book.Title}" by ${book.Author}. Focus on themes, characters, and what makes it worth discussing. Format as a numbered list.`
+          }]
+        }),
+      });
+      const data = await res.json();
+      const text = data.text || data.reply || "";
+      output.innerHTML = `<div class="discussion-content">${text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\n/g, "<br>")}</div>`;
+      btn.textContent = "✦ Regenerate";
+    } catch {
+      output.innerHTML = `<p style="color:var(--ink-3);font-style:italic;font-size:0.85rem;">Couldn't reach Paige — try again.</p>`;
+      btn.textContent = "✦ Discussion Questions";
+    }
+    delete btn.dataset.loading;
+  });
+}
+
+async function addReaction(btn) {
+  if (btn.dataset.reacted) return;
+  const entryEl = btn.closest(".entry");
+  const id = entryEl?.dataset.recordId;
+  if (!id) return;
+  const emoji = btn.dataset.emoji;
+
+  btn.dataset.reacted = "true";
+  try {
+    const res = await fetch("/api/add-reaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ recordId: id, emoji }),
+    });
+    const data = await res.json();
+    if (res.ok && data.reactions) {
+      const count = data.reactions[emoji] || "";
+      btn.querySelector(".reaction-count").textContent = count;
+      btn.classList.add("reacted");
+    } else {
+      delete btn.dataset.reacted;
+    }
+  } catch {
+    delete btn.dataset.reacted;
+  }
+}
+
+const REACTION_EMOJIS = ['❤️', '🔥', '💀', '😭'];
 
 function entryHTML(e) {
   const rating = Number(e.Rating);
+  let reactions = {};
+  try { reactions = JSON.parse(e.Reactions || '{}'); } catch {}
+  const reactionsRow = `<div class="reaction-row">${REACTION_EMOJIS.map(emoji =>
+    `<button class="reaction-btn" data-emoji="${emoji}">
+      ${emoji}<span class="reaction-count">${reactions[emoji] || ''}</span>
+    </button>`
+  ).join('')}</div>`;
   return `
     <div class="entry-header">
       <span class="entry-name">${e.MemberName || "Anonymous"}</span>
@@ -128,6 +204,7 @@ function entryHTML(e) {
     </div>
     ${e.Note ? `<p class="entry-note">${e.Note}</p>` : ""}
     ${e.Link ? `<a class="entry-link" href="${e.Link}" target="_blank" rel="noopener">↗ Link</a>` : ""}
+    ${e.id ? reactionsRow : ""}
   `;
 }
 
@@ -153,6 +230,9 @@ function renderEntries(entries) {
   });
   container.querySelectorAll(".entry-delete-btn").forEach(btn => {
     btn.addEventListener("click", () => deleteEntry(btn.closest(".entry")));
+  });
+  container.querySelectorAll(".reaction-btn").forEach(btn => {
+    btn.addEventListener("click", () => addReaction(btn));
   });
 }
 
