@@ -853,6 +853,147 @@ a { color: inherit; text-decoration: none; }
   margin-left: auto;
 }
 
+/* ════════════════════════════════
+   POLISH & MICRO-INTERACTIONS
+   ════════════════════════════════ */
+
+/* Page fade-in — whole view slides up slightly as it appears */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.page-header { animation: pageIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.controls     { animation: pageIn 0.3s 0.06s cubic-bezier(0.22, 1, 0.36, 1) both; }
+#books-container, #book-container, #recap-content, .tbr-list,
+.stats-wrap, .chat-wrap, .add-wrap {
+  animation: pageIn 0.35s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Active / press states — snappy tactile feedback on iPhone ── */
+.stats-pill:active {
+  transform: scale(0.94) !important;
+  box-shadow: 0 1px 4px rgba(107,39,55,0.15) !important;
+  transition: transform 0.07s ease, box-shadow 0.07s ease !important;
+}
+.book-row:active {
+  transform: scale(0.985) !important;
+  box-shadow: 0 1px 4px rgba(30,30,16,0.07) !important;
+  transition: transform 0.07s ease, box-shadow 0.07s ease !important;
+}
+.current-pick:active {
+  transform: scale(0.975) !important;
+  box-shadow: 0 2px 10px rgba(30,30,16,0.12) !important;
+  transition: transform 0.07s ease, box-shadow 0.07s ease !important;
+}
+.reaction-btn:active {
+  transform: scale(0.85) !important;
+  transition: transform 0.07s ease !important;
+}
+.discussion-btn:active {
+  transform: scale(0.97);
+  transition: transform 0.07s ease;
+}
+.entry-edit-btn:active,
+.entry-delete-btn:active {
+  transform: scale(0.88);
+  transition: transform 0.07s ease;
+}
+#entry-form button[type="submit"]:active {
+  transform: scale(0.97);
+}
+.edit-save-btn:active {
+  transform: scale(0.95);
+  transition: transform 0.07s ease;
+}
+
+/* ── Focus rings — visible glow on form inputs ── */
+#search-input:focus {
+  border-color: rgba(187,133,139,0.55);
+  box-shadow: 0 0 0 3px rgba(187,133,139,0.15);
+}
+#entry-form select:focus,
+#entry-form textarea:focus,
+#entry-form input:focus {
+  border-color: var(--line-gold);
+  box-shadow: 0 0 0 3px rgba(187,133,139,0.15);
+}
+.star-rating-input:focus-within {
+  border-color: var(--line-gold);
+  box-shadow: 0 0 0 3px rgba(187,133,139,0.15);
+}
+.edit-note-input:focus,
+.edit-link-input:focus {
+  outline: none;
+  border-color: var(--ink-2);
+  box-shadow: 0 0 0 3px rgba(107,96,64,0.1);
+}
+
+/* ── Richer current pick hero — gradient instead of flat fill ── */
+.current-pick {
+  background: linear-gradient(150deg, #ca9490 0%, #BB858B 45%, #a86f73 100%);
+}
+.current-pick:hover {
+  background: linear-gradient(150deg, #d49e9b 0%, #c99099 45%, #b87880 100%);
+}
+/* Deeper, more dramatic cover shadow */
+.current-pick .pick-cover,
+.current-pick .pick-cover-ph {
+  box-shadow: 0 24px 56px rgba(30,30,16,0.35), 0 6px 14px rgba(30,30,16,0.18);
+}
+
+/* ── Entry card left-wash tint ── */
+.entry {
+  background: linear-gradient(to right, rgba(187,133,139,0.11) 0%, var(--bg-card-h) 65%);
+}
+.entry:hover {
+  background: linear-gradient(to right, rgba(107,39,55,0.07) 0%, #f8f4e0 65%);
+  border-left-color: #6b2737;
+}
+
+/* ── Book row very subtle gradient ── */
+.book-row {
+  background: linear-gradient(135deg, var(--bg-card-h) 0%, var(--bg-card) 100%);
+}
+.book-row:hover {
+  background: linear-gradient(135deg, #f8f4e0 0%, var(--bg-card-h) 100%);
+}
+
+/* ── Submit button gradient ── */
+#entry-form button[type="submit"] {
+  background: linear-gradient(135deg, #c4898f 0%, #BB858B 55%, #a97076 100%);
+}
+#entry-form button[type="submit"]:hover {
+  background: linear-gradient(135deg, #cd9499 0%, #c99099 55%, #b87880 100%);
+}
+
+/* ── Section dividers — fade in/out from center ── */
+.section-label::before {
+  background: linear-gradient(to right, transparent 0%, rgba(30,30,16,0.22) 100%);
+}
+.section-label::after {
+  background: linear-gradient(to left, transparent 0%, rgba(30,30,16,0.22) 100%);
+}
+.page-title-rule::before {
+  background: linear-gradient(to right, transparent 0%, rgba(30,30,16,0.22) 100%);
+}
+.page-title-rule::after {
+  background: linear-gradient(to left, transparent 0%, rgba(30,30,16,0.22) 100%);
+}
+
+/* ── Book detail cover — deeper shadow ── */
+.book-detail .detail-cover {
+  box-shadow: 0 12px 40px rgba(30,30,16,0.24);
+}
+
+/* ── Pill hover — slightly richer box shadow depth ── */
+.stats-pill:hover {
+  box-shadow: 0 8px 22px rgba(107,39,55,0.38);
+}
+.pill-olive:hover { box-shadow: 0 8px 22px rgba(92,107,39,0.38); }
+.pill-ai:hover    { box-shadow: 0 8px 22px rgba(39,85,107,0.38); }
+.pill-tbr:hover   { box-shadow: 0 8px 22px rgba(107,74,39,0.38); }
+.pill-recap:hover { box-shadow: 0 8px 22px rgba(74,58,107,0.38); }
+
 /* ── Skeleton loading ── */
 @keyframes shimmer {
   0%   { background-position: -400% 0; }
