@@ -1,13 +1,10 @@
-const CACHE = 'bookclub-v1';
-const STATIC = [
-  '/books.html', '/book.html', '/stats.html',
-  '/tbr.html', '/chat.html', '/add-book.html',
-  '/style.css', '/script.js', '/book.js',
+const CACHE = 'bookclub-v2';
+const STATIC_ASSETS = [
   '/manifest.json', '/icon.svg', '/icon-maskable.svg'
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC_ASSETS)));
   self.skipWaiting();
 });
 
@@ -21,10 +18,29 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('/api/')) {
+  const url = e.request.url;
+
+  // Always fetch API calls fresh
+  if (url.includes('/api/')) {
     e.respondWith(fetch(e.request));
     return;
   }
+
+  // Network-first for HTML and JS (so code changes always get through)
+  if (url.endsWith('.html') || url.endsWith('.js') || url.endsWith('.css')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Cache-first for icons / manifest
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request))
   );
