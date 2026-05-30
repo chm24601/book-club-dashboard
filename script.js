@@ -8,10 +8,15 @@ const MEMBER_COLORS = {
 };
 
 function reviewerBubblesHTML(book) {
-  const slug = normalize(book?.Slug || book?.Title || '');
+  const bookSlug = normalize(book?.Slug || '');
+  const bookTitle = normalize(book?.Title || '');
   const reviewers = [...new Set(
     allEntries
-      .filter(e => e?.BookSlug && normalize(e.BookSlug) === slug)
+      .filter(e => {
+        if (!e?.BookSlug) return false;
+        const es = normalize(e.BookSlug);
+        return es === bookSlug || es === bookTitle || (bookSlug && es.includes(bookSlug));
+      })
       .map(e => e.MemberName)
       .filter(Boolean)
   )];
