@@ -33,17 +33,25 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  height: -webkit-fill-available; /* iOS Safari */
+}
 
 body {
   font-family: var(--f-body);
   background-color: var(--bg);
   color: var(--ink);
-  min-height: 100vh;
+  min-height: 100dvh; /* dynamic viewport — avoids iOS toolbar overlap */
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent; /* remove grey flash on tap */
   position: relative;
 }
+
+/* Prevent double-tap zoom on all interactive elements */
+a, button, [role="link"], input, select, textarea { touch-action: manipulation; }
 
 /* ── Botanical Background ── */
 body::before {
@@ -132,7 +140,8 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 0.5rem;
   margin-top: 1.125rem;
-  padding: 0.5rem 1rem;
+  padding: 0.65rem 1.125rem; /* slightly taller for easier tapping */
+  min-height: 44px;
   background: #6b2737;
   color: #EFEBCE;
   border-radius: 100px;
@@ -558,7 +567,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg-card-h);
   color: var(--ink);
   font-family: var(--f-body);
-  font-size: 0.95rem;
+  font-size: 1rem; /* 16px — prevents iOS auto-zoom on focus */
   outline: none;
   transition: border-color 0.15s;
   appearance: none;
@@ -656,6 +665,33 @@ a { color: inherit; text-decoration: none; }
   body::before { background-size: 320px auto, 300px auto; }
 }
 
+/* ── iPhone safe area + mobile polish ── */
+.form-section,
+.tbr-list,
+.books-list {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Prevent accidental text selection on tappable cards */
+.book-row,
+.current-pick {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Larger tap target for nav links */
+.book-nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Reaction buttons need enough height to tap comfortably */
+.reaction-btn {
+  min-height: 36px;
+  padding: 0.375rem 0.75rem;
+}
+
 /* ── Recap pill ── */
 .pill-recap { background: #4a3a6b; box-shadow: 0 2px 12px rgba(74,58,107,0.28); }
 .pill-recap:hover { background: #574473; box-shadow: 0 6px 18px rgba(74,58,107,0.35); color: #EFEBCE; }
@@ -720,10 +756,13 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.04em;
   color: var(--ink-3);
   cursor: pointer;
-  padding: 0.15rem 0.4rem;
+  padding: 0.5rem 0.625rem; /* minimum 44px tap target area */
+  min-height: 44px;
   border-radius: 4px;
   transition: color 0.15s, background 0.15s;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 }
 .entry-edit-btn:hover { color: var(--ink); background: rgba(30,30,16,0.07); }
 .entry-delete-btn:hover { color: #BB858B; background: rgba(187,133,139,0.1); }
@@ -761,7 +800,7 @@ a { color: inherit; text-decoration: none; }
 .edit-note-input,
 .edit-link-input {
   font-family: var(--f-body);
-  font-size: 0.875rem;
+  font-size: 1rem; /* 16px — prevents iOS auto-zoom */
   color: var(--ink);
   background: rgba(30,30,16,0.04);
   border: 0.5px solid var(--line-mid);
