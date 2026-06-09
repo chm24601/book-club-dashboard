@@ -471,13 +471,20 @@ function buildWheel() {
   currentWheelBooks = getWheelBooks();
   const canvas = document.getElementById('wheelCanvas');
   const ctx = canvas.getContext('2d');
-  const cx = canvas.width / 2, cy = canvas.height / 2;
-  const r = cx - 8;
+  const W = canvas.width, H = canvas.height;
+
+  // Shell sits in the upper portion, body hangs below
+  const cx = W / 2;
+  const cy = H * 0.40;
+  const r  = cx - 12;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ── 1. SPINNING SHELL SEGMENTS ──
   const n = Math.min(currentWheelBooks.length, 16);
   if (!n) return;
   const arc = (2 * Math.PI) / n;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < n; i++) {
     const start = i * arc + wheelAngle;
     const end   = start + arc;
@@ -487,31 +494,157 @@ function buildWheel() {
     ctx.closePath();
     ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
     ctx.fill();
-    ctx.strokeStyle = 'rgba(16,12,22,0.5)';
+    ctx.strokeStyle = 'rgba(16,12,22,0.45)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
+    // book title along radius
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(start + arc / 2);
     ctx.textAlign = 'right';
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.font = 'bold 10px Lato, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.font = 'bold 9.5px Lato, sans-serif';
     const label = currentWheelBooks[i].title.length > 22
       ? currentWheelBooks[i].title.slice(0, 21) + '…'
       : currentWheelBooks[i].title;
-    ctx.fillText(label, r - 10, 3.5);
+    ctx.fillText(label, r - 8, 3.5);
     ctx.restore();
   }
-  // center
+
+  // ── 2. SHELL SPIRAL OVERLAY (rotates with shell) ──
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(wheelAngle);
+  ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+  ctx.lineWidth = 1.5;
+  // Draw 3 Archimedean spiral arms
+  for (let arm = 0; arm < 3; arm++) {
+    ctx.beginPath();
+    const offset = (arm / 3) * Math.PI * 2;
+    for (let a = 0; a <= Math.PI * 5; a += 0.06) {
+      const sr = (r / (Math.PI * 5)) * a;
+      const x = sr * Math.cos(a + offset);
+      const y = sr * Math.sin(a + offset);
+      a === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // ── 3. SHELL RING ──
   ctx.beginPath();
-  ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+  ctx.arc(cx, cy, r + 1, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(192,132,252,0.5)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // ── 4. SNAIL BODY (static, drawn below shell) ──
+  const bodyY = cy + r * 0.55;
+  const bodyW = r * 1.1;
+  const bodyH = r * 0.32;
+
+  // Main foot
+  ctx.beginPath();
+  ctx.ellipse(cx + r * 0.1, bodyY, bodyW, bodyH, 0, 0, Math.PI * 2);
+  const bodyGrad = ctx.createRadialGradient(cx, bodyY, 0, cx, bodyY, bodyW);
+  bodyGrad.addColorStop(0, 'rgba(160,110,210,0.65)');
+  bodyGrad.addColorStop(1, 'rgba(100,50,160,0.35)');
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(192,132,252,0.45)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Tail taper (right side)
+  ctx.beginPath();
+  ctx.moveTo(cx + bodyW * 0.7, bodyY);
+  ctx.quadraticCurveTo(cx + bodyW * 1.1, bodyY + bodyH * 0.4, cx + bodyW * 0.95, bodyY + bodyH * 0.15);
+  ctx.fillStyle = 'rgba(120,70,180,0.4)';
+  ctx.fill();
+
+  // ── 5. SNAIL HEAD ──
+  const headX = cx - r * 0.68;
+  const headY = cy + r * 0.45;
+
+  ctx.beginPath();
+  ctx.ellipse(headX, headY, r * 0.2, r * 0.17, -0.25, 0, Math.PI * 2);
+  const headGrad = ctx.createRadialGradient(headX, headY, 0, headX, headY, r * 0.2);
+  headGrad.addColorStop(0, 'rgba(180,130,230,0.75)');
+  headGrad.addColorStop(1, 'rgba(120,70,180,0.5)');
+  ctx.fillStyle = headGrad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(192,132,252,0.5)';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // Mouth hint
+  ctx.beginPath();
+  ctx.arc(headX + r * 0.08, headY + r * 0.08, r * 0.04, 0, Math.PI);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // ── 6. EYE STALKS ──
+  const stalkBaseX = headX - r * 0.05;
+  const stalkBaseY = headY - r * 0.1;
+
+  // Left stalk
+  ctx.beginPath();
+  ctx.moveTo(stalkBaseX - r * 0.06, stalkBaseY);
+  ctx.bezierCurveTo(
+    stalkBaseX - r * 0.14, stalkBaseY - r * 0.18,
+    stalkBaseX - r * 0.18, stalkBaseY - r * 0.32,
+    stalkBaseX - r * 0.12, stalkBaseY - r * 0.42
+  );
+  ctx.strokeStyle = 'rgba(200,150,255,0.85)';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Right stalk
+  ctx.beginPath();
+  ctx.moveTo(stalkBaseX + r * 0.06, stalkBaseY);
+  ctx.bezierCurveTo(
+    stalkBaseX + r * 0.1, stalkBaseY - r * 0.16,
+    stalkBaseX + r * 0.12, stalkBaseY - r * 0.28,
+    stalkBaseX + r * 0.08, stalkBaseY - r * 0.38
+  );
+  ctx.strokeStyle = 'rgba(200,150,255,0.85)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Eyes (glowing dots)
+  [[stalkBaseX - r * 0.12, stalkBaseY - r * 0.42],
+   [stalkBaseX + r * 0.08, stalkBaseY - r * 0.38]].forEach(([ex, ey]) => {
+    // glow
+    const glow = ctx.createRadialGradient(ex, ey, 0, ex, ey, 7);
+    glow.addColorStop(0, 'rgba(233,213,255,0.9)');
+    glow.addColorStop(1, 'rgba(168,85,247,0)');
+    ctx.beginPath();
+    ctx.arc(ex, ey, 7, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+    // pupil
+    ctx.beginPath();
+    ctx.arc(ex, ey, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#e9d5ff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(ex + 1, ey - 1, 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = '#100c16';
+    ctx.fill();
+  });
+
+  // ── 7. CENTER CIRCLE ──
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, 0, 2 * Math.PI);
   ctx.fillStyle = '#100c16';
   ctx.fill();
   ctx.strokeStyle = '#a855f7';
   ctx.lineWidth = 1.5;
   ctx.stroke();
-  ctx.font = '18px serif';
+  ctx.font = '15px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('🐌', cx, cy);

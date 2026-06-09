@@ -266,6 +266,7 @@ main { max-width: 1300px; margin: 0 auto; padding: 1.75rem 1.25rem 6rem; }
 /* Wheel */
 .wheel-wrap { position: relative; display: inline-block; margin-bottom: 1.75rem; }
 .wheel-pointer-wrap { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); z-index: 2; }
+/* canvas is taller now to fit snail body — shadow only around shell area */
 .wheel-pointer { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 24px solid var(--gold); filter: drop-shadow(0 2px 8px rgba(251,191,36,0.7)); }
 #wheelCanvas { display: block; border-radius: 50%; box-shadow: 0 0 60px rgba(168,85,247,0.3), 0 0 120px rgba(168,85,247,0.1); }
 
