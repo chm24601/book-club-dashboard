@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Courtney's Book Nook</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ── ROMAN FLORAL OVERLAY ── -->
+<div class="flora-overlay" aria-hidden="true">
+  <!-- Top Left Corner -->
+  <svg class="flora-tl" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g opacity="0.18" stroke="#d8b4fe" stroke-linecap="round" stroke-linejoin="round">
+      <!-- main stem -->
+      <path d="M10 310 C20 260 15 200 30 150 C45 100 38 55 50 10" stroke-width="1.6"/>
+      <!-- left branches -->
+      <path d="M22 250 C0 230 -10 205 -18 178" stroke-width="1.1"/>
+      <path d="M28 185 C8 162 -2 138 -8 110" stroke-width="1.1"/>
+      <path d="M34 125 C18 104 10 80 8 55" stroke-width="1.1"/>
+      <!-- right branches -->
+      <path d="M26 230 C50 210 68 188 80 160" stroke-width="1.1"/>
+      <path d="M31 165 C55 145 72 122 82 95" stroke-width="1.1"/>
+      <path d="M37 105 C59 86 74 63 82 38" stroke-width="1.1"/>
+      <!-- laurel leaves left -->
+      <ellipse cx="-18" cy="178" rx="14" ry="6" transform="rotate(-38 -18 178)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="-8" cy="110" rx="15" ry="6" transform="rotate(-42 -8 110)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="8" cy="55" rx="13" ry="5" transform="rotate(-50 8 55)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <!-- laurel leaves right -->
+      <ellipse cx="80" cy="160" rx="15" ry="6" transform="rotate(28 80 160)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="82" cy="95" rx="14" ry="6" transform="rotate(32 82 95)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="82" cy="38" rx="13" ry="5" transform="rotate(22 82 38)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <!-- blossom at top -->
+      <circle cx="50" cy="10" r="5" fill="#e9d5ff" fill-opacity="0.35"/>
+      <circle cx="50" cy="10" r="10" stroke-width="0.7"/>
+      <path d="M50 0 C53 5 53 5 50 10 C47 5 47 5 50 0" fill="#e9d5ff" fill-opacity="0.28"/>
+      <path d="M40 10 C45 7 45 13 50 10 C45 13 45 7 40 10" fill="#e9d5ff" fill-opacity="0.28"/>
+      <path d="M60 10 C55 7 55 13 50 10 C55 13 55 7 60 10" fill="#e9d5ff" fill-opacity="0.28"/>
+      <path d="M50 20 C53 15 53 15 50 10 C47 15 47 15 50 20" fill="#e9d5ff" fill-opacity="0.28"/>
+      <!-- small berries -->
+      <circle cx="-18" cy="178" r="2.5" fill="#e9d5ff" fill-opacity="0.4"/>
+      <circle cx="80" cy="160" r="2.5" fill="#e9d5ff" fill-opacity="0.4"/>
+      <circle cx="8" cy="55" r="2" fill="#e9d5ff" fill-opacity="0.4"/>
+      <!-- Roman column detail -->
+      <rect x="0" y="290" width="8" height="20" rx="1" fill="#d8b4fe" fill-opacity="0.1"/>
+      <rect x="-2" y="288" width="12" height="3" rx="1" fill="#d8b4fe" fill-opacity="0.15"/>
+      <rect x="-2" y="308" width="12" height="3" rx="1" fill="#d8b4fe" fill-opacity="0.15"/>
+    </g>
+  </svg>
+
+  <!-- Top Right Corner -->
+  <svg class="flora-tr" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g opacity="0.18" stroke="#d8b4fe" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M310 310 C300 260 305 200 290 150 C275 100 282 55 270 10" stroke-width="1.6"/>
+      <path d="M298 250 C320 230 330 205 338 178" stroke-width="1.1"/>
+      <path d="M292 185 C312 162 322 138 328 110" stroke-width="1.1"/>
+      <path d="M286 125 C302 104 310 80 312 55" stroke-width="1.1"/>
+      <path d="M294 230 C270 210 252 188 240 160" stroke-width="1.1"/>
+      <path d="M289 165 C265 145 248 122 238 95" stroke-width="1.1"/>
+      <path d="M283 105 C261 86 246 63 238 38" stroke-width="1.1"/>
+      <ellipse cx="338" cy="178" rx="14" ry="6" transform="rotate(38 338 178)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="328" cy="110" rx="15" ry="6" transform="rotate(42 328 110)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="312" cy="55" rx="13" ry="5" transform="rotate(50 312 55)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="240" cy="160" rx="15" ry="6" transform="rotate(-28 240 160)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="238" cy="95" rx="14" ry="6" transform="rotate(-32 238 95)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <ellipse cx="238" cy="38" rx="13" ry="5" transform="rotate(-22 238 38)" fill="#d8b4fe" fill-opacity="0.12"/>
+      <circle cx="270" cy="10" r="5" fill="#e9d5ff" fill-opacity="0.35"/>
+      <circle cx="270" cy="10" r="10" stroke-width="0.7"/>
+      <path d="M270 0 C273 5 273 5 270 10 C267 5 267 5 270 0" fill="#e9d5ff" fill-opacity="0.28"/>
+      <path d="M260 10 C265 7 265 13 270 10 C265 13 265 7 260 10" fill="#e9d5ff" fill-opacity="0.28"/>
+      <path d="M280 10 C275 7 275 13 270 10 C275 13 275 7 280 10" fill="#e9d5ff" fill-opacity="0.28"/>
+      <path d="M270 20 C273 15 273 15 270 10 C267 15 267 15 270 20" fill="#e9d5ff" fill-opacity="0.28"/>
+      <circle cx="338" cy="178" r="2.5" fill="#e9d5ff" fill-opacity="0.4"/>
+      <circle cx="240" cy="160" r="2.5" fill="#e9d5ff" fill-opacity="0.4"/>
+      <circle cx="312" cy="55" r="2" fill="#e9d5ff" fill-opacity="0.4"/>
+      <rect x="312" y="290" width="8" height="20" rx="1" fill="#d8b4fe" fill-opacity="0.1"/>
+      <rect x="310" y="288" width="12" height="3" rx="1" fill="#d8b4fe" fill-opacity="0.15"/>
+      <rect x="310" y="308" width="12" height="3" rx="1" fill="#d8b4fe" fill-opacity="0.15"/>
+    </g>
+  </svg>
+
+  <!-- Bottom ornament -->
+  <svg class="flora-bottom" viewBox="0 0 600 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g opacity="0.12" stroke="#d8b4fe" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M300 10 C295 40 305 70 300 110" stroke-width="1.4"/>
+      <path d="M300 35 C270 25 250 18 230 8" stroke-width="1"/>
+      <path d="M300 35 C330 25 350 18 370 8" stroke-width="1"/>
+      <path d="M300 65 C260 55 235 45 210 30" stroke-width="1"/>
+      <path d="M300 65 C340 55 365 45 390 30" stroke-width="1"/>
+      <path d="M300 90 C250 80 215 68 185 52" stroke-width="1"/>
+      <path d="M300 90 C350 80 385 68 415 52" stroke-width="1"/>
+      <ellipse cx="230" cy="8" rx="12" ry="5" transform="rotate(-20 230 8)" fill="#d8b4fe" fill-opacity="0.15"/>
+      <ellipse cx="370" cy="8" rx="12" ry="5" transform="rotate(20 370 8)" fill="#d8b4fe" fill-opacity="0.15"/>
+      <ellipse cx="210" cy="30" rx="13" ry="5" transform="rotate(-25 210 30)" fill="#d8b4fe" fill-opacity="0.15"/>
+      <ellipse cx="390" cy="30" rx="13" ry="5" transform="rotate(25 390 30)" fill="#d8b4fe" fill-opacity="0.15"/>
+      <ellipse cx="185" cy="52" rx="13" ry="5" transform="rotate(-30 185 52)" fill="#d8b4fe" fill-opacity="0.15"/>
+      <ellipse cx="415" cy="52" rx="13" ry="5" transform="rotate(30 415 52)" fill="#d8b4fe" fill-opacity="0.15"/>
+      <circle cx="300" cy="10" r="6" fill="#e9d5ff" fill-opacity="0.3"/>
+    </g>
+  </svg>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-rule"><span>✦</span></div>
+  <p class="eyebrow">a private collection</p>
+  <h1>Courtney's<br/><em>Book Nook</em></h1>
+  <div class="header-rule"><span>✦</span></div>
+
+  <div class="stats-row">
+    <div class="stat-pill"><span class="stat-n" id="sTBR">—</span><span class="stat-l">to be read</span></div>
+    <div class="stat-divider">·</div>
+    <div class="stat-pill"><span class="stat-n" id="sRead">—</span><span class="stat-l">read & owned</span></div>
+    <div class="stat-divider">·</div>
+    <div class="stat-pill"><span class="stat-n" id="sNotOwned">—</span><span class="stat-l">read, not owned</span></div>
+    <div class="stat-divider">·</div>
+    <div class="stat-pill"><span class="stat-n" id="sTotal">—</span><span class="stat-l">total owned</span></div>
+  </div>
+</header>
+
+<!-- ── NAV ── -->
+<nav>
+  <button class="nav-btn active" data-tab="tbr">TBR</button>
+  <button class="nav-btn" data-tab="read-owned">Read &amp; Owned</button>
+  <button class="nav-btn" data-tab="read-not-owned">Read, Not Owned</button>
+  <button class="nav-btn" data-tab="spin">🐌 Spin</button>
+</nav>
+
+<!-- ── CONTENT ── -->
+<main>
+
+  <!-- TBR -->
+  <section id="tab-tbr" class="tab active">
+    <div class="section-controls">
+      <div class="controls-left">
+        <select id="tbrGenre" class="ctrl-select"><option value="">All Genres</option></select>
+        <select id="tbrSort" class="ctrl-select">
+          <option value="title">A–Z</option>
+          <option value="author">Author</option>
+          <option value="genre">Genre</option>
+        </select>
+        <input id="tbrSearch" class="ctrl-search" placeholder="Search…"/>
+      </div>
+      <button class="add-btn" onclick="openAddModal()">+ Add Book</button>
+    </div>
+    <p class="results-count" id="tbrCount"></p>
+    <div class="cover-grid" id="tbrGrid"></div>
+  </section>
+
+  <!-- READ & OWNED -->
+  <section id="tab-read-owned" class="tab">
+    <div class="section-controls">
+      <div class="controls-left">
+        <select id="readGenre" class="ctrl-select"><option value="">All Genres</option></select>
+        <select id="readSort" class="ctrl-select">
+          <option value="title">A–Z</option>
+          <option value="author">Author</option>
+          <option value="genre">Genre</option>
+        </select>
+        <input id="readSearch" class="ctrl-search" placeholder="Search…"/>
+      </div>
+    </div>
+    <p class="results-count" id="readCount"></p>
+    <div class="cover-grid" id="readGrid"></div>
+  </section>
+
+  <!-- READ NOT OWNED -->
+  <section id="tab-read-not-owned" class="tab">
+    <div class="section-controls">
+      <div class="controls-left">
+        <select id="notOwnedGenre" class="ctrl-select"><option value="">All Genres</option></select>
+        <input id="notOwnedSearch" class="ctrl-search" placeholder="Search…"/>
+      </div>
+      <button class="add-btn" onclick="openAddNotOwnedModal()">+ Add Book</button>
+    </div>
+    <p class="results-count" id="notOwnedCount"></p>
+    <div class="cover-grid" id="notOwnedGrid"></div>
+  </section>
+
+  <!-- SPIN -->
+  <section id="tab-spin" class="tab spin-tab">
+    <div class="spin-hero">
+      <p class="eyebrow">fate decides</p>
+      <h2>What should I read next?</h2>
+      <p class="spin-sub">Choose a mood, then let the snail decide.</p>
+    </div>
+
+    <div class="prompt-row" id="promptRow"></div>
+
+    <div class="wheel-wrap">
+      <div class="wheel-pointer-wrap"><div class="wheel-pointer"></div></div>
+      <canvas id="wheelCanvas" width="360" height="360"></canvas>
+    </div>
+
+    <button class="spin-btn" id="spinBtn" onclick="doSpin()">🐌 Spin the Snail</button>
+  </section>
+
+</main>
+
+<!-- ── ADD BOOK MODAL ── -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+    <h3 class="modal-title">Add to TBR 📚</h3>
+    <p class="modal-sub">What's your next great purchase?</p>
+    <div class="form-group">
+      <label>Title</label>
+      <input id="addTitle" class="form-input" placeholder="e.g. Normal People"/>
+    </div>
+    <div class="form-group">
+      <label>Author</label>
+      <input id="addAuthor" class="form-input" placeholder="e.g. Sally Rooney"/>
+    </div>
+    <div class="form-group">
+      <label>Genre</label>
+      <input id="addGenre" class="form-input" placeholder="e.g. Literary Fiction"/>
+    </div>
+    <button class="modal-submit" onclick="submitAddBook()">Add to TBR ✨</button>
+  </div>
+</div>
+
+<!-- ── ADD NOT OWNED MODAL ── -->
+<div class="modal-overlay" id="addNotOwnedModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addNotOwnedModal')">✕</button>
+    <h3 class="modal-title">Add Read Book 📖</h3>
+    <p class="modal-sub">Books you've read but don't own.</p>
+    <div class="form-group">
+      <label>Title</label>
+      <input id="notOwnedTitle" class="form-input" placeholder="e.g. Normal People"/>
+    </div>
+    <div class="form-group">
+      <label>Author</label>
+      <input id="notOwnedAuthor" class="form-input" placeholder="e.g. Sally Rooney"/>
+    </div>
+    <div class="form-group">
+      <label>Genre</label>
+      <input id="notOwnedGenre2" class="form-input" placeholder="e.g. Literary Fiction"/>
+    </div>
+    <button class="modal-submit" onclick="submitNotOwnedBook()">Add Book ✨</button>
+  </div>
+</div>
+
+<!-- ── SPIN RESULT MODAL ── -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal result-modal">
+    <button class="modal-close" onclick="closeModal('resultModal')">✕</button>
+    <div class="result-cover-wrap">
+      <img id="resultCover" src="" alt="" class="result-cover"/>
+      <div id="resultCoverPh" class="result-cover-ph"></div>
+    </div>
+    <p class="result-label">your next read is…</p>
+    <h3 class="result-title" id="resultTitle"></h3>
+    <p class="result-author" id="resultAuthor"></p>
+    <span class="result-genre" id="resultGenre"></span>
+    <div class="result-actions">
+      <button class="btn-ghost" onclick="closeModal('resultModal')">Close</button>
+      <button class="btn-solid" onclick="closeModal('resultModal'); doSpin()">Spin Again 🐌</button>
+    </div>
+  </div>
+</div>
+
+<!-- confetti container -->
+<div id="confettiBox"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
